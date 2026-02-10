@@ -50,19 +50,19 @@ export default function Navbar() {
   
   return (
     <nav className={
-      `fixed top-0 left-0 w-full bg-white/80 dark:bg-black/80 backdrop-blur-md z-50 shadow-md transition-all duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`
+      `fixed top-0 left-0 w-full bg-white/80 dark:bg-black/80 backdrop-blur-md z-50 shadow-md text-gray-900 dark:text-gray-100 transition-all duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`
     }
       ref={menuRef}
     >
       <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-2 md:py-4">
 
-        <div className="text-xl font-heading text-gray-900 dark:text-gray-100">
+        <div className="text-xl font-heading">
           <p className="text-sm">
             This website is a work in progress :)
           </p>
         </div>
 
-        <div className="hidden md:flex space-x-8 text-gray-900 dark:text-gray-100 font-medium justify-center items-center">
+        <div className="hidden md:flex space-x-8 font-medium justify-center items-center">
           <a href="#home" className="hover:text-blue-600 dark:hover:text-blue-400">Home</a>
           <a href="#about" className="hover:text-blue-600 dark:hover:text-blue-400">About</a>
           <a href="#projects" className="hover:text-blue-600 dark:hover:text-blue-400">Projects</a>
@@ -76,14 +76,14 @@ export default function Navbar() {
         <div className="md:hidden flex items-center">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="text-gray-900 dark:text-gray-100 p-2 focus:outline-none"
+            className="p-2 focus:outline-none"
           >
             {isOpen ? <FiX className="pointer-events-none"/> : <FiMenu className="pointer-events-none"/>}
           </button>
         </div>
       </div>
 
-      <div className={`md:hidden bg-white/80 dark:bg-black/80 px-6 space-y-4 text-gray-900 dark:text-gray-100 font-medium transition-all duration-300
+      <div className={`md:hidden px-6 space-y-4 font-medium transition-[max-height,opacity,padding] duration-300
         ${isOpen ? 'max-h-screen opacity-100 py-4' : 'max-h-0 opacity-0 overflow-hidden py-0'}`}
       >
         <a href="#home" className="block hover:text-blue-600 dark:hover:text-blue-400">Home</a>
