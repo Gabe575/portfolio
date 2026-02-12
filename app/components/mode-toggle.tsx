@@ -1,24 +1,24 @@
-"use client"
-import * as React from "react"
-import { FiMoon, FiSun } from "react-icons/fi"
-import { useTheme } from "next-themes"
+"use client";
+import * as React from "react";
+import { FiMoon, FiSun } from "react-icons/fi";
+import { useTheme } from "next-themes";
 
 export function ModeToggle({
   className,
 }: Readonly<{
-  className?: string
+  className?: string;
 }>) {
-  const { resolvedTheme, setTheme } = useTheme()
-  const [mounted, setMounted] = React.useState(false)
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
 
-  React.useEffect(() => setMounted(true), [])
+  React.useEffect(() => setMounted(true), []);
 
   // Don't render until theme is resolved
-  if (!mounted || !resolvedTheme) return null
+  if (!mounted || !resolvedTheme) return null;
 
   const handleToggle = () => {
-    setTheme(resolvedTheme === "dark" ? "light" : "dark")
-  }
+    setTheme(resolvedTheme === "dark" ? "light" : "dark");
+  };
 
   return (
     <button

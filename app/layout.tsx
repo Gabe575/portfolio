@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Figtree, Space_Grotesk } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import Navbar from "@components/navbar";
-import "@/globals.css";
+import "@/globals.scss";
 
 const figtree = Figtree({
   subsets: ["latin"],

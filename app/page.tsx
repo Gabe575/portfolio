@@ -1,11 +1,13 @@
 import { FiGithub, FiLinkedin } from "react-icons/fi";
+import Image from "next/image";
+import ScrollingLanguages from "@components/scrolling-languages";
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen items-center">
-      <main className="flex min-h-screen w-full max-w-7xl flex-col items-center px-6 sm:items-start sm:px-16">
-        <section id="home" className="min-h-screen py-24 flex flex-col items-center text-center justify-between sm:items-start sm:text-left md:py-32">
-          <div>
+      <main className="flex min-h-screen w-full flex-col items-center sm:items-start">
+        <section id="home" className="min-h-screen w-full pt-24 px-6 flex flex-col items-center text-center sm:items-start sm:text-left sm:px-16 md:pt-32">
+          <div className="max-w-7xl mx-auto w-full h-full items-center flex flex-col sm:items-start sm:text-left">
             <h1 className="max-w-xs text-4xl font-semibold leading-10 tracking-tight whitespace-nowrap sm:text-7xl">
               Gabriel Santos
             </h1>
@@ -15,17 +17,40 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="about" className="min-h-screen py-16 flex flex-col items-center text-center sm:items-start sm:text-left md:py-24">
-          <h2 className="text-2xl font-semibold tracking-tight">About</h2>
-          <p>Website under development, check back soon for updates!</p>
+        <section id="about" className="bg-darkish w-full pt-16 flex flex-col items-center text-center bg-black md:items-start md:text-left md:px-16 md:pt-24">
+          <div className="max-w-7xl mx-auto w-full h-full">
+            <div className="flex flex-col items-center justify-between md:flex-row md:items-start gap-8 max-md:pb-16 ">
+              <div className="items-center text-center max-sm:px-6">
+                <h2 className="section-title md:text-left">About</h2>
+                <div className="inline-block p-1 mb-4 rounded-full bg-gradient-to-r from-pink-400 via-indigo-400 to-emerald-400 animate-border">
+                  <div className="rounded-full overflow-hidden max-w-32 sm:max-w-48 lg:max-w-96">
+                    <Image src="/headshot.jpg" alt="Gabriel Santos" width={480} height={480}/>
+                  </div>
+                </div>
+                <p className="lg:text-xl">Hey! I'm Gabe, a software engineer and full stack developer based&nbsp;in</p>
+                <p className="whitespace-nowrap text-lg lg:text-2xl"><b>Ontario, Canada</b></p>
+                <div className="md:text-start py-4 max-sm:px-6 max-md:px-16 md:py-8">
+                  <p className="text-sm sm:text-base lg:text-lg text-zinc-700 dark:text-zinc-400">
+                    I've gained experience in a variety of programming languages and frameworks throughout my time working in internships, personal projects, and studying{" "}
+                    <b>Software Engineering</b> at <b>Western University</b>.
+                  </p>
+                </div>
+              </div>
+              <ScrollingLanguages/>
+            </div>
+          </div>
         </section>
 
-        <section id="projects" className="min-h-screen py-16 flex flex-col items-center text-center sm:items-start sm:text-left md:py-24">
-          <h2 className="text-2xl font-semibold tracking-tight">Projects</h2>
+        <section id="projects" className="min-h-screen w-full pt-16 px-6 flex flex-col items-center text-center sm:items-start sm:text-left sm:px-16 md:pt-24">
+          <div className="max-w-7xl mx-auto w-full h-full">
+            <h2 className="section-title">Projects</h2>
+          </div>
         </section>
 
-        <section id="contact" className="min-h-screen py-16 flex flex-col items-center text-center sm:items-start sm:text-left md:py-24">
-          <h2 className="text-2xl font-semibold tracking-tight">Contact</h2>
+        <section id="contact" className="bg-darkish min-h-screen w-full pt-16 px-6 flex flex-col items-center text-center sm:items-start sm:text-left sm:px-16 md:pt-24">
+          <div className="max-w-7xl mx-auto w-full h-full">
+            <h2 className="section-title">Contact</h2>
+          </div>
         </section>
         
         
