@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -56,13 +56,15 @@ h4 {
 
 .bg-darkish {
   background-color: #ddd;
-  box-shadow: 0 -12px 12px #ddd8,
-                0 12px 12px #ddd8;
+  box-shadow:
+    0 -12px 12px #ddd8,
+    0 12px 12px #ddd8;
   transition: all 0.3s ease;
   .dark & {
     background-color: #111;
-    box-shadow: 0 -12px 12px #1118,
-                0 12px 12px #1118;
+    box-shadow:
+      0 -12px 12px #1118,
+      0 12px 12px #1118;
     transition: all 0.3s ease;
   }
 }
@@ -108,7 +110,7 @@ h4 {
   &::before,
   &::after {
     @include gradient(horizontal);
-    content: "";
+    content: '';
     height: 100%;
     position: absolute;
     width: var(--gradient-width);
@@ -209,24 +211,28 @@ h4 {
 
 @keyframes glowPulse {
   0% {
-    box-shadow: 0 0 10px rgba(236, 72, 153, 0.4),
-                0 0 20px rgba(99, 102, 241, 0.3),
-                0 0 30px rgba(16, 185, 129, 0.2);
+    box-shadow:
+      0 0 10px rgba(236, 72, 153, 0.4),
+      0 0 20px rgba(99, 102, 241, 0.3),
+      0 0 30px rgba(16, 185, 129, 0.2);
   }
   50% {
-    box-shadow: 0 0 20px rgba(236, 72, 153, 0.6),
-                0 0 40px rgba(99, 102, 241, 0.5),
-                0 0 60px rgba(16, 185, 129, 0.4);
+    box-shadow:
+      0 0 20px rgba(236, 72, 153, 0.6),
+      0 0 40px rgba(99, 102, 241, 0.5),
+      0 0 60px rgba(16, 185, 129, 0.4);
   }
   100% {
-    box-shadow: 0 0 10px rgba(236, 72, 153, 0.4),
-                0 0 20px rgba(99, 102, 241, 0.3),
-                0 0 30px rgba(16, 185, 129, 0.2);
+    box-shadow:
+      0 0 10px rgba(236, 72, 153, 0.4),
+      0 0 20px rgba(99, 102, 241, 0.3),
+      0 0 30px rgba(16, 185, 129, 0.2);
   }
 }
 
 .animate-border {
   background-size: 300% 300%;
-  animation: gradientShift 6s ease infinite,
-             glowPulse 3s ease-in-out infinite;
+  animation:
+    gradientShift 6s ease infinite,
+    glowPulse 3s ease-in-out infinite;
 }
