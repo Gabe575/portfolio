@@ -11,7 +11,7 @@
 
 @layer components {
   .section-title {
-    @apply text-2xl font-semibold tracking-tight pb-8 sm:text-4xl;
+    @apply text-3xl font-semibold tracking-tight pb-8 sm:text-4xl lg:text-6xl;
   }
   .languages-div {
     @apply flex flex-col font-semibold text-center items-center justify-center gap-2 w-32 h-32 border-2 rounded-lg p-4 shadow-[3px_5px_2px_rgba(0,0,0,0.1)]
