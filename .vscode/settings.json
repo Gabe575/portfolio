@@ -2,8 +2,9 @@
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "eslint.format.enable": true,
+  "scss.lint.unknownAtRules": "ignore",
   "editor.codeActionsOnSave": {
-    "source.fixAll": true,
-    "source.fixAll.eslint": true
+    "source.fixAll": "always",
+    "source.fixAll.eslint": "always"
   }
 }
