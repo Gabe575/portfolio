@@ -29,7 +29,7 @@ export function ModeToggle({
       />
       <FiMoon
         className={`absolute h-5 w-5 transition-transform ${
-          resolvedTheme === 'dark' ? 'scale-0 rotate-90' : 'scale-100 -rotate-0'
+          resolvedTheme === 'dark' ? 'scale-0 rotate-90' : 'scale-100 rotate-0'
         }`}
       />
     </button>
