@@ -33,10 +33,10 @@ const frameworks = [
   { name: 'Unity', icon: <Image src="/unity.svg" alt="Unity" width={48} height={48} /> },
 ];
 
-const ScrollingLanguages = () => {
+export default function ScrollingLanguages() {
   return (
     <>
-      <div className="relative flex flex-col justify-between items-center h-48 w-full h-68 min-h-68 md:hidden">
+      <div className="relative flex flex-col justify-between items-center w-full h-68 md:hidden">
         <Marquee direction="left" gradient gradientWidth={100}>
           {languages.map((lang, idx) => (
             <div key={idx} className="languages-div mr-2">
@@ -70,6 +70,4 @@ const ScrollingLanguages = () => {
       </div>
     </>
   );
-};
-
-export default ScrollingLanguages;
+}

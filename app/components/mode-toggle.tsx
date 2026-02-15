@@ -3,7 +3,7 @@ import * as React from 'react';
 import { FiMoon, FiSun } from 'react-icons/fi';
 import { useTheme } from 'next-themes';
 
-export function ModeToggle({
+export default function ModeToggle({
   className,
 }: Readonly<{
   className?: string;
