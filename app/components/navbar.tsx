@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ModeToggle } from '@components/mode-toggle';
+import ModeToggle from '@components/mode-toggle';
 import { FiX, FiMenu } from 'react-icons/fi';
 
 export default function Navbar() {
@@ -54,7 +54,7 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 w-full bg-white/80 dark:bg-black/80 backdrop-blur-md z-50 shadow-md text-gray-900 dark:text-gray-100 transition-all duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}
+      className={`fixed top-0 left-0 w-full bg-white/80 dark:bg-black/80 backdrop-blur-md z-50 shadow-md transition-all duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}
       ref={menuRef}
     >
       <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-2 md:py-4">
