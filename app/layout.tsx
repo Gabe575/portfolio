@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Figtree, Space_Grotesk } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
+import { Analytics } from '@vercel/analytics/next';
 import Navbar from '@components/navbar';
 import '@/globals.css';
 
@@ -66,6 +67,7 @@ export default function RootLayout({
           <Navbar />
           {children}
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
