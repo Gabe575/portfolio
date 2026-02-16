@@ -1,9 +1,10 @@
 'use server';
 
+import { ipRateLimiter, globalRateLimiter } from '@lib/ratelimit';
+import { headers } from 'next/headers';
 import { Resend } from 'resend';
 
 const MIN_SUBMISSION_TIME = 1000;
-
 const resend = new Resend(process.env.RESEND_API_KEY);
 type FormState = {
   error?: string;
@@ -20,6 +21,7 @@ export async function sendEmail(
     const message = formData.get('message') as string;
     const company = formData.get('company') as string;
     const formStart = formData.get('formStart') as string;
+    const ip = (await headers()).get('x-forwarded-for') as string | null;
 
     if (!formStart) {
       return { error: 'Invalid submission.' };
@@ -46,6 +48,24 @@ export async function sendEmail(
 
     if (!name || !email || !message) {
       return { error: 'All fields are required.' };
+    }
+
+    if (ip) {
+      const { success: ipSuccess } = await ipRateLimiter.limit(ip);
+      if (!ipSuccess) {
+        return {
+          error:
+            "Woah, slow down! You've submitted too many forms recently. Please try again later.",
+        };
+      }
+    }
+
+    const { success: globalSuccess } = await globalRateLimiter.limit('global');
+    if (!globalSuccess) {
+      return {
+        error:
+          'Oops, looks like my inbox is full with submissions for today! Please try again tomorrow.',
+      };
     }
 
     await resend.emails.send({
