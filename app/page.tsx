@@ -95,7 +95,7 @@ export default function Home() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <FiGithub />
+              <FiGithub size={16} />
             </a>
             <a
               href="https://linkedin.com/in/gabriel2004santos"
@@ -103,7 +103,7 @@ export default function Home() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <FiLinkedin />
+              <FiLinkedin size={16} />
             </a>
           </div>
         </div>
