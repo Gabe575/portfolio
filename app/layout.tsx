@@ -17,7 +17,8 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   title: 'Gabriel Santos',
-  description: "Gabriel Santos' portfolio showcasing projects, design, and web development skills.",
+  description:
+    'Software engineer specializing in developing and maintaining full-stack web applications with modern technologies. Explore projects, skills, and solutions.',
   keywords: [
     'Gabriel Santos',
     'Software Engineer',
@@ -30,7 +31,7 @@ export const metadata: Metadata = {
     type: 'website',
     title: 'Gabriel Santos',
     description:
-      "Gabriel Santos' portfolio showcasing projects, design, and web development skills.",
+      'Software engineer specializing in developing and maintaining full-stack web applications with modern technologies. Explore projects, skills, and solutions.',
     url: 'https://www.gabesantos.ca',
     siteName: 'Gabriel Santos Portfolio',
     images: [
