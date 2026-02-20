@@ -1,17 +1,17 @@
 'use client';
-import * as React from 'react';
+import { useEffect, useState, useActionState, useRef, startTransition } from 'react';
 import { sendEmail } from '@/actions';
 
 const MESSAGE_LIMIT = 3000;
 
 export default function ContactForm() {
-  const [state, action, isPending] = React.useActionState(sendEmail, null);
-  const [success, setSuccess] = React.useState(false);
-  const [messageLength, setMessageLength] = React.useState(0);
-  const [formStart, setFormStart] = React.useState<string | null>(null);
-  const formRef = React.useRef<HTMLFormElement>(null);
+  const [state, action, isPending] = useActionState(sendEmail, null);
+  const [success, setSuccess] = useState(false);
+  const [messageLength, setMessageLength] = useState(0);
+  const [formStart, setFormStart] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (state?.success) {
       formRef.current?.reset();
       setMessageLength(0);
@@ -19,7 +19,7 @@ export default function ContactForm() {
     }
   }, [state]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setFormStart(new Date().toISOString());
   }, []);
 
@@ -30,7 +30,7 @@ export default function ContactForm() {
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     const formData = new FormData(formRef.current ?? undefined);
-    React.startTransition(async () => {
+    startTransition(async () => {
       action(formData);
     });
   };

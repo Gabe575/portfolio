@@ -2,28 +2,35 @@ import { FiGithub, FiLinkedin } from 'react-icons/fi';
 import Image from 'next/image';
 import ScrollingLanguages from '@components/scrolling-languages';
 import ContactForm from '@components/contact-form';
+import Hero from '@components/hero';
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen items-center">
-      <main className="flex min-h-screen w-full flex-col items-center sm:items-start">
-        <section
-          id="home"
-          className="min-h-screen w-full pt-24 px-6 flex flex-col items-center text-center sm:items-start sm:text-left sm:px-16 md:pt-32"
-        >
-          <div className="max-w-7xl mx-auto w-full h-full items-center flex flex-col sm:items-start sm:text-left">
-            <h1 className="max-w-xs text-4xl font-semibold leading-10 tracking-tight whitespace-nowrap sm:text-7xl">
-              Gabriel Santos
-            </h1>
-            <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-              Software Engineer
-            </p>
-          </div>
-        </section>
+    <div className="relative flex flex-col items-center">
+      <section
+        className="fixed inset-0 h-screen
+        min-h-screen w-full flex flex-col items-center text-center sm:items-start sm:text-left -z-10"
+      >
+        <div
+          className="absolute inset-0 
+        bg-linear-to-b from-blue-900 via-indigo-950 to-purple-900 
+        transition-opacity duration-300 
+        dark:opacity-0 opacity-100 pointer-events-none"
+        />
 
+        <div
+          className="absolute inset-0 
+        bg-linear-to-b from-blue-900 via-slate-950 to-purple-900 
+        transition-opacity duration-300 
+        dark:opacity-100 opacity-0 pointer-events-none"
+        />
+        <Hero />
+      </section>
+      <div className="h-screen" id="home" />
+      <main className="relative flex min-h-screen w-full flex-col items-center sm:items-start">
         <section
           id="about"
-          className="bg-darkish w-full pt-16 flex flex-col items-center text-center bg-black md:items-start md:text-left md:px-16 md:pt-24"
+          className="bg-darkish w-full pt-20 flex flex-col items-center text-center bg-black md:items-start md:text-left md:px-16 md:pt-24"
         >
           <div className="max-w-7xl mx-auto w-full h-full">
             <div className="flex flex-col items-center justify-between md:flex-row md:items-start gap-8 max-md:pb-16 ">
@@ -55,7 +62,7 @@ export default function Home() {
 
         <section
           id="projects"
-          className="min-h-screen w-full pt-16 px-6 flex flex-col items-center text-center sm:items-start sm:text-left sm:px-16 md:pt-24"
+          className="bg-normal min-h-screen w-full pt-20 px-6 flex flex-col items-center text-center sm:items-start sm:text-left sm:px-16 md:pt-24"
         >
           <div className="max-w-7xl mx-auto w-full h-full">
             <h2 className="section-title">Projects</h2>
@@ -64,7 +71,7 @@ export default function Home() {
 
         <section
           id="contact"
-          className="bg-darkish w-full py-16 px-6 flex flex-col items-center text-center sm:items-start sm:text-left sm:px-16 md:py-24"
+          className="bg-darkish w-full py-20 px-6 flex flex-col items-center text-center sm:items-start sm:text-left sm:px-16 md:py-24"
         >
           <div className="max-w-7xl mx-auto w-full h-full">
             <h2 className="section-title">Contact</h2>
@@ -85,7 +92,7 @@ export default function Home() {
           </div>
         </section>
       </main>
-      <footer className="py-12 px-6 text-sm text-zinc-500 text-center w-full bg-zinc-200 dark:bg-zinc-900 shadow-md transition-all duration-300 sm:px-16">
+      <footer className="py-12 px-6 text-sm text-zinc-500 text-center w-full bg-zinc-200 dark:bg-zinc-900 shadow-md transition-all duration-300 sm:px-16 z-10">
         <div className="max-w-7xl mx-auto flex flex-row items-center justify-between">
           <p>© {new Date().getFullYear()} Gabriel Santos. Built with Next.js.</p>
           <div className="flex justify-center gap-4">

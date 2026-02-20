@@ -70,6 +70,22 @@ h4 {
   transition: all 0.3s ease;
 }
 
+.bg-normal {
+  background-color: #ededed;
+  box-shadow:
+    0 -12px 12px #ddd8,
+    0 12px 12px #ddd8;
+  transition: all 0.3s ease;
+}
+
+.dark .bg-normal {
+  background-color: #141414;
+  box-shadow:
+    0 -12px 12px #1118,
+    0 12px 12px #1118;
+  transition: all 0.3s ease;
+}
+
 /*  marquee css styles taken and modified from react-fast-marquee by Justin Chu (MIT License, 2020)
     https://github.com/justin-chu/react-fast-marquee
     Permission notice: https://opensource.org/licenses/MIT */

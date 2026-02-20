@@ -1,17 +1,19 @@
 'use client';
 
-import * as React from 'react';
+import { useEffect, useState, useRef } from 'react';
 import ModeToggle from '@components/mode-toggle';
 import { FiX, FiMenu } from 'react-icons/fi';
 
 export default function Navbar() {
-  const prevScrollPos = React.useRef(0);
-  const ignoreScroll = React.useRef(false);
-  const menuRef = React.useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = React.useState(true);
-  const [isOpen, setIsOpen] = React.useState(false);
+  const prevScrollPos = useRef(0);
+  const ignoreScroll = useRef(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    const timeout = setTimeout(() => setIsVisible(true), 200);
+
     const handleScroll = () => {
       if (ignoreScroll.current) return;
       const currentScrollPos = window.pageYOffset;
@@ -44,6 +46,7 @@ export default function Navbar() {
     document.addEventListener('click', handleAnchorClick);
 
     return () => {
+      clearTimeout(timeout);
       window.removeEventListener('scroll', handleScroll);
       document.removeEventListener('click', handleAnchorClick);
       window.removeEventListener('scrollend', () => {
@@ -54,7 +57,8 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 w-full bg-white/80 dark:bg-black/80 backdrop-blur-md z-50 shadow-md transition-all duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}
+      className={`fixed left-1/2 transform -translate-x-1/2 bg-white/25 dark:bg-black/25 backdrop-blur-xs z-50 shadow-md transition-all duration-300
+        ${isVisible ? 'translate-y-0 top-4' : '-translate-y-full top-0'} rounded-3xl border border-white/30 dark:border-black/30 w-full max-w-xs md:max-w-3xl`}
       ref={menuRef}
     >
       <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-2 md:py-4">
