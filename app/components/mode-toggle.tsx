@@ -1,5 +1,5 @@
 'use client';
-import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { FiMoon, FiSun } from 'react-icons/fi';
 import { useTheme } from 'next-themes';
 
@@ -9,9 +9,9 @@ export default function ModeToggle({
   className?: string;
 }>) {
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  React.useEffect(() => setMounted(true), []);
+  useEffect(() => setMounted(true), []);
 
   // Don't render until theme is resolved
   if (!mounted || !resolvedTheme) return null;
