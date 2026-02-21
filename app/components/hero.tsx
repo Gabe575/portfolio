@@ -17,20 +17,14 @@ function Scene({
   const { scene, camera, viewport } = useThree();
   const firstNameRef = useRef<THREE.Points | null>(null);
   const lastNameRef = useRef<THREE.Points | null>(null);
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [loadProgress, setLoadProgress] = useState(0);
   const targetZ = useRef<number>(30);
 
   useEffect(() => {
-    setIsDarkMode(document.documentElement.classList.contains('dark'));
-    const observer = new MutationObserver(() =>
-      setIsDarkMode(document.documentElement.classList.contains('dark')),
-    );
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     const onScroll = () => {
       const triggerHeight = window.innerHeight / 2;
-      const progress = Math.min(window.scrollY / triggerHeight, 1);
+      const progress = Math.min(Math.max((window.scrollY - 50) / triggerHeight, 0), 1);
       setScrollProgress(progress);
     };
     window.addEventListener('scroll', onScroll);
@@ -56,7 +50,7 @@ function Scene({
             size.x / cam.aspect / (2 * Math.tan(halfFov)),
           );
 
-          targetZ.current = requiredZ + 5;
+          targetZ.current = Math.max(requiredZ + 5, 20);
         });
       });
     };
@@ -64,32 +58,25 @@ function Scene({
     window.addEventListener('orientationchange', adjustCamera);
     adjustCamera();
 
-    if (window.scrollY <= 0) {
-      document.body.style.overflow = 'hidden';
-      let start = performance.now();
-      const duration = 2000;
+    let start = performance.now();
+    const duration = 2000;
 
-      const animate = (time: number) => {
-        const elapsed = time - start;
-        const p = Math.min(elapsed / duration, 1);
-        setLoadProgress(p);
-        if (p < 1) {
-          requestAnimationFrame(animate);
-        } else {
-          document.body.style.overflow = '';
-        }
-      };
-      requestAnimationFrame(animate);
-    } else {
-      setLoadProgress(1);
-      onScroll();
-    }
+    const animate = (time: number) => {
+      const elapsed = time - start;
+      const p = Math.min(elapsed / duration, 1);
+      setLoadProgress(p);
+      if (p < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        document.body.style.overflow = '';
+      }
+    };
+    requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', adjustCamera);
       window.removeEventListener('orientationchange', adjustCamera);
-      observer.disconnect();
     };
   }, []);
 
@@ -155,44 +142,41 @@ function Scene({
     const colors = sys.geometry.attributes.color as THREE.BufferAttribute;
     const positions = sys.geometry.attributes.position as THREE.BufferAttribute;
     const { origCols, waveBounds } = sys.userData;
-
     if (!waveBounds) return;
 
     const { globalMinY, height } = waveBounds;
-
-    const speed = 2.0;
-    const bandThickness = height * 0.25;
-
-    const waveY = globalMinY + ((t * speed) % (height + bandThickness)) - bandThickness;
+    const speed = 0.05;
+    const bandCount = 3;
+    const bandWidth = height * 0.4;
 
     for (let i = 0; i < colors.count; i++) {
       const y = positions.getY(i);
       const oc = origCols[i];
+      let glow = 0;
 
-      const dist = Math.abs(y - waveY);
-      const dist1 = Math.abs(dist - (height + bandThickness) / 6);
-      const dist2 = Math.abs(dist - (3 * (height + bandThickness)) / 6);
-      const dist3 = Math.abs(dist - (5 * (height + bandThickness)) / 6);
+      for (let b = 0; b < bandCount; b++) {
+        const bandOffset = (b / bandCount) * height;
+        const raw = y - globalMinY - bandOffset + t * speed * height;
+        const wrapped = ((raw % height) + height) % height;
+        const dist = wrapped / bandWidth;
+        let bandGlow = 0;
 
-      const intensity = Math.max(
-        0,
-        1 - dist1 / bandThickness,
-        1 - dist2 / bandThickness,
-        1 - dist3 / bandThickness,
-      );
-      const glow = Math.pow(intensity, 3);
-
-      const brightness = isDarkMode ? 0.1 + 3 * glow : 0.5 + 3 * glow;
-
+        if (dist <= 1) {
+          const fadeDist = (dist - 0.05) / (1 - 0.05);
+          bandGlow = Math.pow(1 - fadeDist, 2);
+        }
+        glow += bandGlow;
+      }
+      glow = Math.min(glow, 1);
+      const brightness = 0.1 + 2.5 * glow;
       colors.setXYZ(i, oc.r * brightness, oc.g * brightness, oc.b * brightness);
     }
-
     colors.needsUpdate = true;
   };
 
   const applyHorizontalSway = (sys: THREE.Points, t: number) => {
     const positions = sys.geometry.attributes.position as THREE.BufferAttribute;
-    const swayAmplitude = 0.0004;
+    const swayAmplitude = 0.03;
 
     for (let i = 0; i < positions.count; i++) {
       const x = positions.getX(i);
@@ -216,8 +200,8 @@ function Scene({
       const count = positions.count;
       const center = idx === 0 ? swirlTop : swirlBottom;
 
-      const progress = loadProgress < 1 ? loadProgress : scrollProgress;
-      const easedProgress = Math.sin((progress * Math.PI) / 2);
+      const targetProgress = Math.max(1 - loadProgress, scrollProgress);
+      const easedProgress = Math.sin((targetProgress * Math.PI) / 2);
 
       for (let i = 0; i < count; i++) {
         const origX = origPositions[i * 3];
@@ -226,39 +210,21 @@ function Scene({
 
         const { baseAngle, radius, speed, startY } = swirlData[i];
 
-        if (loadProgress < 1) {
-          const cx = THREE.MathUtils.lerp(center.x, origX, easedProgress);
-          const cy = THREE.MathUtils.lerp(startY, origY, easedProgress);
-          const cz = THREE.MathUtils.lerp(center.z, origZ, easedProgress);
+        const cx = THREE.MathUtils.lerp(origX, center.x, easedProgress);
+        const cy = THREE.MathUtils.lerp(origY, center.y, easedProgress);
+        const cz = THREE.MathUtils.lerp(origZ, center.z, easedProgress);
 
-          const angle = baseAngle + speed * t * easedProgress;
-          const zSign = idx === 0 ? 1 : -1;
-          const tilt = Math.PI / 2.1;
+        const angle = baseAngle - speed * t * easedProgress;
+        const zSign = idx === 0 ? 1 : -1;
+        const tilt = Math.PI / 2.1;
 
-          const circleX = Math.cos(angle) * radius * state.viewport.width * (1 - easedProgress);
-          const circleY = Math.sin(angle) * radius * state.viewport.width * (1 - easedProgress);
+        const circleX = Math.cos(angle) * radius * state.viewport.width * easedProgress;
+        const circleY = Math.sin(angle) * radius * state.viewport.width * easedProgress;
 
-          const rotatedY = circleY * Math.cos(tilt);
-          const rotatedZ = circleY * Math.sin(tilt) * zSign;
+        const rotatedY = circleY * Math.cos(tilt);
+        const rotatedZ = circleY * Math.sin(tilt) * zSign;
 
-          positions.setXYZ(i, cx + circleX, cy + rotatedY, cz + rotatedZ);
-        } else {
-          const cx = THREE.MathUtils.lerp(origX, center.x, easedProgress);
-          const cy = THREE.MathUtils.lerp(origY, center.y, easedProgress);
-          const cz = THREE.MathUtils.lerp(origZ, center.z, easedProgress);
-
-          const angle = baseAngle + speed * t * easedProgress;
-          const zSign = idx === 0 ? 1 : -1;
-          const tilt = Math.PI / 2.1;
-
-          const circleX = Math.cos(angle) * radius * state.viewport.width * easedProgress;
-          const circleY = Math.sin(angle) * radius * state.viewport.width * easedProgress;
-
-          const rotatedY = circleY * Math.cos(tilt);
-          const rotatedZ = circleY * Math.sin(tilt) * zSign;
-
-          positions.setXYZ(i, cx + circleX, cy + rotatedY, cz + rotatedZ);
-        }
+        positions.setXYZ(i, cx + circleX, cy + rotatedY, cz + rotatedZ);
       }
       camera.position.z += (targetZ.current - camera.position.z) * 0.1;
       camera.updateProjectionMatrix();
@@ -291,7 +257,7 @@ const generateParticleText = (
   const textGeo = new TextGeometry(text, {
     font,
     size: 5,
-    depth: 1,
+    depth: 0.5,
     curveSegments: 12,
   });
 

@@ -6,14 +6,14 @@ import Hero from '@components/hero';
 
 export default function Home() {
   return (
-    <div className="relative flex flex-col items-center">
+    <div className="relative flex flex-col items-center" id="home">
       <section
-        className="fixed inset-0 h-screen
+        className="sticky top-0 h-screen
         min-h-screen w-full flex flex-col items-center text-center sm:items-start sm:text-left -z-10"
       >
         <div
           className="absolute inset-0 
-        bg-linear-to-b from-blue-900 via-indigo-950 to-purple-900 
+        bg-linear-to-b from-inherit via-slate-900 to-blue-300 
         transition-opacity duration-300 
         dark:opacity-0 opacity-100 pointer-events-none"
         />
@@ -26,7 +26,6 @@ export default function Home() {
         />
         <Hero />
       </section>
-      <div className="h-screen" id="home" />
       <main className="relative flex min-h-screen w-full flex-col items-center sm:items-start">
         <section
           id="about"
