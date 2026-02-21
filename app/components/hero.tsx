@@ -24,7 +24,7 @@ function Scene({
   useEffect(() => {
     const onScroll = () => {
       const triggerHeight = window.innerHeight / 2;
-      const progress = Math.min(Math.max((window.scrollY - 50) / triggerHeight, 0), 1);
+      const progress = Math.min(Math.max(window.scrollY / triggerHeight, 0), 1);
       setScrollProgress(progress);
     };
     window.addEventListener('scroll', onScroll);
@@ -201,7 +201,10 @@ function Scene({
       const center = idx === 0 ? swirlTop : swirlBottom;
 
       const targetProgress = Math.max(1 - loadProgress, scrollProgress);
-      const easedProgress = Math.sin((targetProgress * Math.PI) / 2);
+      const easedProgress =
+        targetProgress < 0.5
+          ? Math.pow(targetProgress * 2, 5) / 2
+          : 1 - Math.pow((1 - targetProgress) * 2, 2) / 2;
 
       for (let i = 0; i < count; i++) {
         const origX = origPositions[i * 3];
