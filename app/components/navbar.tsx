@@ -12,6 +12,9 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
     const timeout = setTimeout(() => setIsVisible(true), 200);
 
     const handleScroll = () => {
@@ -58,7 +61,7 @@ export default function Navbar() {
   return (
     <nav
       className={`fixed left-1/2 transform -translate-x-1/2 bg-white/25 dark:bg-black/25 backdrop-blur-xs z-50 shadow-md transition-all duration-300
-        ${isVisible ? 'translate-y-0 top-4' : '-translate-y-full top-0'} rounded-3xl border border-white/30 dark:border-black/30 w-full max-w-xs md:max-w-3xl`}
+        ${isVisible ? 'translate-y-0 top-4' : '-translate-y-50 top-0'} rounded-3xl border border-white/30 dark:border-black/30 w-full max-w-xs md:max-w-3xl`}
       ref={menuRef}
     >
       <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-2 md:py-4">
