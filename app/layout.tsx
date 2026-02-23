@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { Figtree, Space_Grotesk } from 'next/font/google';
-import { ThemeProvider } from 'next-themes';
 import { Analytics } from '@vercel/analytics/next';
-import Navbar from '@components/navbar';
+import UIProvider from '@components/ui-provider';
 import '@/globals.css';
 
 const figtree = Figtree({
@@ -37,8 +36,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: '/og-image.png',
-        width: 512,
-        height: 512,
+        width: 1200,
+        height: 630,
         alt: 'Gabriel Santos Portfolio',
       },
     ],
@@ -64,10 +63,7 @@ export default function RootLayout({
       <body
         className={`${figtree.variable} ${spaceGrotesk.variable} antialiased transition-colors duration-300`}
       >
-        <ThemeProvider attribute="class" enableSystem defaultTheme="system">
-          <Navbar />
-          {children}
-        </ThemeProvider>
+        <UIProvider>{children}</UIProvider>
         <Analytics />
       </body>
     </html>
