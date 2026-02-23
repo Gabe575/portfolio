@@ -1,6 +1,7 @@
 import { FiGithub, FiLinkedin } from 'react-icons/fi';
 import Image from 'next/image';
 import ScrollingLanguages from '@components/scrolling-languages';
+import Project from '@components/project';
 import ContactForm from '@components/contact-form';
 import Hero from '@components/hero';
 
@@ -65,6 +66,33 @@ export default function Home() {
         >
           <div className="max-w-7xl mx-auto w-full h-full">
             <h2 className="section-title">Projects</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-7xl mx-auto py-16">
+            <Project title="Portfolio Website" image="/portfolio.jpg">
+              <div className="max-w-5xl text-base sm:leading-relaxed md:text-lg lg:text-xl xl:text-2xl xl:leading-loose">
+                <p>
+                  This portfolio website is the first major project I've worked on. I built it as a
+                  space to showcase my future work while also serving as a personal web sandbox
+                  where I can experiment and try new things.
+                </p>
+                <br />
+                <p className="font-semibold lg:text-center lg:p-4">The stack:</p>
+                <ul className="flex flex-col sm:flex-row sm:justify-center gap-x-16 flex-wrap list-disc list-inside">
+                  <li>NextJS + React TypeScript</li>
+                  <li>Tailwind CSS + PostCSS</li>
+                  <li>Resend (contact form)</li>
+                  <li>Upstash Redis</li>
+                  <li>Vercel (hosting)</li>
+                </ul>
+                <br />
+                <p className="font-semibold lg:text-center lg:p-4">Experiments:</p>
+                <ul className="flex flex-col sm:flex-row sm:justify-center gap-x-16 flex-wrap list-disc list-inside">
+                  <li>ESLint + Prettier + Husky</li>
+                  <li>ThreeJS + React Three Fiber</li>
+                  <li>Custom WebGL shaders</li>
+                </ul>
+              </div>
+            </Project>
           </div>
         </section>
 

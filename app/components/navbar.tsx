@@ -2,7 +2,9 @@
 
 import { useEffect, useState, useRef } from 'react';
 import ModeToggle from '@components/mode-toggle';
+import { useUI } from '@components/ui-provider';
 import { FiX, FiMenu } from 'react-icons/fi';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export default function Navbar() {
   const prevScrollPos = useRef(0);
@@ -10,6 +12,8 @@ export default function Navbar() {
   const menuRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const { projectOpen } = useUI();
 
   useEffect(() => {
     if ('scrollRestoration' in history) {
@@ -21,7 +25,10 @@ export default function Navbar() {
       if (ignoreScroll.current) return;
       const currentScrollPos = window.pageYOffset;
 
-      if (currentScrollPos <= prevScrollPos.current || currentScrollPos < 100) {
+      if (
+        currentScrollPos <= prevScrollPos.current ||
+        currentScrollPos < window.innerHeight * 0.5
+      ) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
@@ -58,66 +65,96 @@ export default function Navbar() {
     };
   }, []);
 
-  return (
-    <nav
-      className={`fixed left-1/2 transform -translate-x-1/2 bg-white/25 dark:bg-black/25 backdrop-blur-xs z-50 shadow-md transition-all duration-300
-        ${isVisible ? 'translate-y-0 top-4' : '-translate-y-50 top-0'} rounded-3xl border border-white/30 dark:border-black/30 w-full max-w-xs md:max-w-3xl`}
-      ref={menuRef}
-    >
-      <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-2 md:py-4">
-        <div className="text-xl font-heading">
-          <p className="text-sm">This website is a work in progress :)</p>
-        </div>
+  useEffect(() => {
+    if (projectOpen) {
+      setIsVisible(false);
+      setIsOpen(false);
+    }
+  }, [projectOpen]);
 
-        <div className="hidden md:flex space-x-8 font-medium justify-center items-center">
-          <a href="#home" className="hover:text-blue-600 dark:hover:text-blue-400">
-            Home
-          </a>
-          <a href="#about" className="hover:text-blue-600 dark:hover:text-blue-400">
-            About
-          </a>
-          <a href="#projects" className="hover:text-blue-600 dark:hover:text-blue-400">
-            Projects
-          </a>
-          <a href="#contact" className="hover:text-blue-600 dark:hover:text-blue-400">
-            Contact
-          </a>
-          <div className="h-10 w-10">
-            <ModeToggle className="relative w-10 h-10 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white flex items-center justify-center transition-transform hover:bg-gray-100 dark:hover:bg-gray-900" />
+  return (
+    <>
+      <AnimatePresence>
+        {projectOpen && (
+          <motion.div
+            className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ type: 'tween', duration: 0.5 }}
+          />
+        )}
+      </AnimatePresence>
+      <div
+        className="fixed top-0 left-0 w-full h-20 bg-transparent z-10"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      />
+      <nav
+        className={`fixed left-1/2 transform -translate-x-1/2 bg-white/25 dark:bg-black/25 backdrop-blur-xs z-50 shadow-md transition-all duration-300 text-xl
+        ${isVisible || isHovered ? 'translate-y-0 top-4' : '-translate-y-50 top-0'} rounded-3xl border border-white/30 dark:border-black/30 w-full max-w-xs md:max-w-3xl`}
+        ref={menuRef}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => {
+          setIsHovered(false);
+          setIsOpen(false);
+        }}
+      >
+        <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-2 md:py-4">
+          <div className="text-xl font-heading">
+            <p className="text-sm">This website is a work in progress :)</p>
+          </div>
+
+          <div className="hidden md:flex space-x-8 font-medium justify-center items-center">
+            <a href="#home" className="hover:text-blue-600 dark:hover:text-blue-400">
+              Home
+            </a>
+            <a href="#about" className="hover:text-blue-600 dark:hover:text-blue-400">
+              About
+            </a>
+            <a href="#projects" className="hover:text-blue-600 dark:hover:text-blue-400">
+              Projects
+            </a>
+            <a href="#contact" className="hover:text-blue-600 dark:hover:text-blue-400">
+              Contact
+            </a>
+            <div className="h-10 w-10">
+              <ModeToggle className="relative w-10 h-10 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white flex items-center justify-center transition-transform hover:bg-gray-100 dark:hover:bg-gray-900" />
+            </div>
+          </div>
+
+          <div className="md:hidden flex items-center">
+            <button onClick={() => setIsOpen(!isOpen)} className="p-2 focus:outline-none">
+              {isOpen ? (
+                <FiX className="pointer-events-none" />
+              ) : (
+                <FiMenu className="pointer-events-none" />
+              )}
+            </button>
           </div>
         </div>
 
-        <div className="md:hidden flex items-center">
-          <button onClick={() => setIsOpen(!isOpen)} className="p-2 focus:outline-none">
-            {isOpen ? (
-              <FiX className="pointer-events-none" />
-            ) : (
-              <FiMenu className="pointer-events-none" />
-            )}
-          </button>
-        </div>
-      </div>
-
-      <div
-        className={`md:hidden px-6 space-y-4 font-medium transition-[max-height,opacity,padding] duration-300
+        <div
+          className={`md:hidden px-6 space-y-4 font-medium transition-[max-height,opacity,padding] duration-300
         ${isOpen ? 'max-h-screen opacity-100 py-4' : 'max-h-0 opacity-0 overflow-hidden py-0'}`}
-      >
-        <a href="#home" className="block hover:text-blue-600 dark:hover:text-blue-400">
-          Home
-        </a>
-        <a href="#about" className="block hover:text-blue-600 dark:hover:text-blue-400">
-          About
-        </a>
-        <a href="#projects" className="block hover:text-blue-600 dark:hover:text-blue-400">
-          Projects
-        </a>
-        <a href="#contact" className="block hover:text-blue-600 dark:hover:text-blue-400">
-          Contact
-        </a>
-        <div className="h-10 w-full">
-          <ModeToggle className="relative w-full h-10 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white flex items-center justify-center transition-transform hover:bg-gray-100 dark:hover:bg-gray-900" />
+        >
+          <a href="#home" className="block hover:text-blue-600 dark:hover:text-blue-400">
+            Home
+          </a>
+          <a href="#about" className="block hover:text-blue-600 dark:hover:text-blue-400">
+            About
+          </a>
+          <a href="#projects" className="block hover:text-blue-600 dark:hover:text-blue-400">
+            Projects
+          </a>
+          <a href="#contact" className="block hover:text-blue-600 dark:hover:text-blue-400">
+            Contact
+          </a>
+          <div className="h-10 w-full">
+            <ModeToggle className="relative w-full h-10 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white flex items-center justify-center transition-transform hover:bg-gray-100 dark:hover:bg-gray-900" />
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </>
   );
 }
