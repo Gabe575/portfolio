@@ -62,17 +62,18 @@ export default function Home() {
 
         <section
           id="projects"
-          className="bg-normal min-h-screen w-full pt-20 px-6 flex flex-col items-center text-center sm:items-start sm:text-left sm:px-16 md:pt-24"
+          className="bg-normal min-h-200 w-full pt-20 px-6 flex flex-col items-center text-center sm:items-start sm:text-left sm:px-16 md:pt-24"
         >
-          <div className="max-w-7xl mx-auto w-full h-full">
+          <div className="max-w-7xl mx-auto w-full">
             <h2 className="section-title">Projects</h2>
+            <p className="text-zinc-600 dark:text-zinc-400">More coming soon...</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-7xl mx-auto py-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-7xl mx-auto pt-16 pb-32">
             <Project title="Portfolio Website" image="/portfolio.jpg">
               <div className="max-w-5xl text-base sm:leading-relaxed md:text-lg lg:text-xl xl:text-2xl xl:leading-loose">
                 <p>
-                  This portfolio website is the first major project I've worked on. I built it as a
-                  space to showcase my future work while also serving as a personal web sandbox
+                  This portfolio website is the first major project I&apos;ve worked on. I built it
+                  as a space to showcase my future work while also serving as a personal web sandbox
                   where I can experiment and try new things.
                 </p>
                 <br />

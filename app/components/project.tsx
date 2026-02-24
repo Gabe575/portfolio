@@ -38,11 +38,18 @@ export default function Project({
         style={{ backgroundImage: `url(${image})` }}
         onClick={handleOpen}
       >
-        <div className="absolute flex bottom-0 w-full h-1/3 bg-white/60 dark:bg-black/60 backdrop-blur-xs justify-center items-center">
+        <motion.div
+          className="absolute flex bottom-0 w-full bg-white/60 dark:bg-black/60 backdrop-blur-xs justify-center items-center"
+          initial={false}
+          animate={{
+            height: cardVisible ? '33.3333%' : '0',
+          }}
+          transition={{ type: 'spring', duration: 0.5 }}
+        >
           <p className="text-xl sm:text-2xl md:text-xl lg:text-2xl xl:text-3xl font-semibold">
             {title}
           </p>
-        </div>
+        </motion.div>
       </div>
       <AnimatePresence
         onExitComplete={() => {
@@ -85,9 +92,9 @@ export default function Project({
                 setProjectOpen(false);
               }}
             >
-              <div className="absolute flex bottom-0 w-full h-1/3 bg-white/60 dark:bg-black/60 backdrop-blur-xs justify-center items-center">
+              {/* <div className="absolute flex bottom-0 w-full h-0 bg-white/60 dark:bg-black/60 backdrop-blur-xs justify-center items-center">
                 <p className="text-xl sm:text-2xl xl:text-3xl font-semibold">{title}</p>
-              </div>
+              </div> */}
             </motion.div>
 
             <motion.div
