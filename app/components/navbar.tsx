@@ -88,11 +88,19 @@ export default function Navbar() {
       <div
         className="fixed top-0 left-0 w-full h-20 bg-transparent z-10"
         onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseLeave={() => {
+          setIsHovered(false);
+          setIsOpen(false);
+        }}
       />
-      <nav
-        className={`fixed left-1/2 transform -translate-x-1/2 bg-white/25 dark:bg-black/25 backdrop-blur-xs z-50 shadow-md transition-all duration-300 text-xl
-        ${isVisible || isHovered ? 'translate-y-0 top-4' : '-translate-y-50 top-0'} rounded-3xl border border-white/30 dark:border-black/30 w-full max-w-xs md:max-w-3xl`}
+      <motion.nav
+        className={`fixed transform left-full top-4 translate-x-[calc(-100%-1rem)] md:left-1/2 md:-translate-x-1/2 
+        rounded-3xl border border-white/30 dark:border-black/30  max-w-lg bg-white/25 dark:bg-black/25 backdrop-blur-xs z-50 shadow-md text-xl`}
+        initial={false}
+        animate={{
+          translateY: isVisible || isHovered ? '0' : '-200px',
+        }}
+        transition={{ type: 'tween', duration: 0.3 }}
         ref={menuRef}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => {
@@ -100,12 +108,8 @@ export default function Navbar() {
           setIsOpen(false);
         }}
       >
-        <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-2 md:py-4">
-          <div className="text-xl font-heading">
-            <p className="text-sm">This website is a work in progress :)</p>
-          </div>
-
-          <div className="hidden md:flex space-x-8 font-medium justify-center items-center">
+        <div className="hidden md:flex mx-auto items-center justify-center px-6 py-2 md:py-4 overflow-hidden">
+          <div className="space-x-8 font-medium justify-center items-center flex">
             <a href="#home" className="hover:text-blue-600 dark:hover:text-blue-400">
               Home
             </a>
@@ -122,8 +126,10 @@ export default function Navbar() {
               <ModeToggle className="relative w-10 h-10 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white flex items-center justify-center transition-transform hover:bg-gray-100 dark:hover:bg-gray-900" />
             </div>
           </div>
+        </div>
 
-          <div className="md:hidden flex items-center">
+        <div className="md:hidden flex flex-col items-end overflow-hidden">
+          <div className="flex items-center">
             <button onClick={() => setIsOpen(!isOpen)} className="p-2 focus:outline-none">
               {isOpen ? (
                 <FiX className="pointer-events-none" />
@@ -132,29 +138,47 @@ export default function Navbar() {
               )}
             </button>
           </div>
+          <motion.div
+            className="space-y-4 font-medium flex flex-col items-center"
+            initial={false}
+            animate={{
+              maxHeight: isOpen ? '100vh' : '0',
+              width: isOpen ? '256px' : '0',
+              padding: isOpen ? '16px 24px' : '0',
+              pointerEvents: isOpen ? 'auto' : 'none',
+            }}
+            transition={{ type: 'tween', duration: 0.3 }}
+          >
+            <a
+              href="#home"
+              className="block hover:text-blue-600 dark:hover:text-blue-400 w-full text-center"
+            >
+              Home
+            </a>
+            <a
+              href="#about"
+              className="block hover:text-blue-600 dark:hover:text-blue-400 w-full text-center"
+            >
+              About
+            </a>
+            <a
+              href="#projects"
+              className="block hover:text-blue-600 dark:hover:text-blue-400 w-full text-center"
+            >
+              Projects
+            </a>
+            <a
+              href="#contact"
+              className="block hover:text-blue-600 dark:hover:text-blue-400 w-full text-center"
+            >
+              Contact
+            </a>
+            <div className="h-10 w-full">
+              <ModeToggle className="relative w-full h-10 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white flex items-center justify-center transition-transform hover:bg-gray-100 dark:hover:bg-gray-900" />
+            </div>
+          </motion.div>
         </div>
-
-        <div
-          className={`md:hidden px-6 space-y-4 font-medium transition-[max-height,opacity,padding] duration-300
-        ${isOpen ? 'max-h-screen opacity-100 py-4' : 'max-h-0 opacity-0 overflow-hidden py-0'}`}
-        >
-          <a href="#home" className="block hover:text-blue-600 dark:hover:text-blue-400">
-            Home
-          </a>
-          <a href="#about" className="block hover:text-blue-600 dark:hover:text-blue-400">
-            About
-          </a>
-          <a href="#projects" className="block hover:text-blue-600 dark:hover:text-blue-400">
-            Projects
-          </a>
-          <a href="#contact" className="block hover:text-blue-600 dark:hover:text-blue-400">
-            Contact
-          </a>
-          <div className="h-10 w-full">
-            <ModeToggle className="relative w-full h-10 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white flex items-center justify-center transition-transform hover:bg-gray-100 dark:hover:bg-gray-900" />
-          </div>
-        </div>
-      </nav>
+      </motion.nav>
     </>
   );
 }
