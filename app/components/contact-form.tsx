@@ -8,20 +8,18 @@ export default function ContactForm() {
   const [state, action, isPending] = useActionState(sendEmail, null);
   const [success, setSuccess] = useState(false);
   const [messageLength, setMessageLength] = useState(0);
-  const [formStart, setFormStart] = useState<string | null>(null);
+  const [formStart] = useState<string | null>(new Date().toISOString());
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (state?.success) {
       formRef.current?.reset();
+
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMessageLength(0);
       setSuccess(true);
     }
   }, [state]);
-
-  useEffect(() => {
-    setFormStart(new Date().toISOString());
-  }, []);
 
   const handleTyping = () => {
     if (success) setSuccess(false);
