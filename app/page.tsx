@@ -14,14 +14,14 @@ export default function Home() {
       >
         <div
           className="absolute inset-0 
-        bg-linear-to-b from-inherit via-slate-900 to-blue-300 
+        bg-linear-to-b from-[#ededed] via-slate-900 to-indigo-300 
         transition-opacity duration-300 
         dark:opacity-0 opacity-100 pointer-events-none"
         />
 
         <div
           className="absolute inset-0 
-        bg-linear-to-b from-blue-900 via-slate-950 to-purple-900 
+        bg-linear-to-b from-[#141414] via-slate-950 to-purple-950 
         transition-opacity duration-300 
         dark:opacity-100 opacity-0 pointer-events-none"
         />
@@ -30,7 +30,7 @@ export default function Home() {
       <main className="relative flex min-h-screen w-full flex-col items-center sm:items-start">
         <section
           id="about"
-          className="bg-darkish w-full pt-20 flex flex-col items-center text-center bg-black md:items-start md:text-left md:px-16 md:pt-24"
+          className="bg-[#ddd] dark:bg-[#111] w-full pt-20 flex flex-col items-center text-center md:items-start md:text-left md:px-16 md:pt-24 transition-colors duration-300"
         >
           <div className="max-w-7xl mx-auto w-full h-full">
             <div className="flex flex-col items-center justify-between md:flex-row md:items-start gap-8 max-md:pb-16 ">
@@ -62,7 +62,7 @@ export default function Home() {
 
         <section
           id="projects"
-          className="bg-normal min-h-200 w-full pt-20 px-6 flex flex-col items-center text-center sm:items-start sm:text-left sm:px-16 md:pt-24"
+          className="bg-[#ededed] dark:bg-[#141414] min-h-200 w-full pt-20 px-6 flex flex-col items-center text-center sm:items-start sm:text-left sm:px-16 md:pt-24 transition-colors duration-300"
         >
           <div className="max-w-7xl mx-auto w-full">
             <h2 className="section-title">Projects</h2>
@@ -99,7 +99,7 @@ export default function Home() {
 
         <section
           id="contact"
-          className="bg-darkish w-full py-20 px-6 flex flex-col items-center text-center sm:items-start sm:text-left sm:px-16 md:py-24"
+          className="bg-[#ddd] dark:bg-[#111] w-full py-20 px-6 flex flex-col items-center text-center sm:items-start sm:text-left sm:px-16 md:py-24 transition-colors duration-300"
         >
           <div className="max-w-7xl mx-auto w-full h-full">
             <h2 className="section-title">Contact</h2>

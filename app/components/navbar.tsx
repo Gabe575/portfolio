@@ -10,7 +10,7 @@ export default function Navbar() {
   const prevScrollPos = useRef(0);
   const ignoreScroll = useRef(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const { projectOpen } = useUI();
@@ -19,7 +19,6 @@ export default function Navbar() {
     if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
     }
-    const timeout = setTimeout(() => setIsVisible(true), 200);
 
     const handleScroll = () => {
       if (ignoreScroll.current) return;
@@ -56,7 +55,6 @@ export default function Navbar() {
     document.addEventListener('click', handleAnchorClick);
 
     return () => {
-      clearTimeout(timeout);
       window.removeEventListener('scroll', handleScroll);
       document.removeEventListener('click', handleAnchorClick);
       window.removeEventListener('scrollend', () => {
@@ -97,7 +95,7 @@ export default function Navbar() {
       <motion.nav
         className={`fixed transform left-full top-4 translate-x-[calc(-100%-1rem)] md:left-1/2 md:-translate-x-1/2 
         rounded-3xl border border-white/30 dark:border-black/30  max-w-lg bg-white/25 dark:bg-black/25 backdrop-blur-xs z-50 shadow-md text-xl`}
-        initial={false}
+        initial={{ translateY: '-200px' }}
         animate={{
           translateY: isVisible || isHovered ? '0' : '-200px',
         }}

@@ -39,7 +39,7 @@ export default function Project({
         onClick={handleOpen}
       >
         <motion.div
-          className="absolute flex bottom-0 w-full bg-white/60 dark:bg-black/60 backdrop-blur-xs justify-center items-center"
+          className="absolute flex bottom-0 w-full bg-white/60 dark:bg-black/60 backdrop-blur-xs justify-center items-center transition-colors duration-300"
           initial={false}
           animate={{
             height: cardVisible ? '33.3333%' : '0',
