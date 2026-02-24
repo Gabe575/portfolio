@@ -208,7 +208,7 @@ function Particles() {
   const lastNameRef = useRef<ShaderPoints | null>(null);
   const scrollProgress = useRef(0);
   const loadProgress = useRef(0);
-  const [loadComplete, setLoadComplete] = useState<boolean>(false);
+  const [particleSystem, setParticleSystem] = useState<ShaderPoints[] | null>();
   const targetZ = useRef<number>(30);
 
   useEffect(() => {
@@ -233,7 +233,7 @@ function Particles() {
       const count = window.innerWidth < 768 ? 2500 : 4000;
       firstNameRef.current = generateParticleText('Gabriel', font, paletteBlue, count, 3);
       lastNameRef.current = generateParticleText('Santos', font, paletteGreen, count, -3, -2);
-      setLoadComplete(true);
+      setParticleSystem([firstNameRef.current, lastNameRef.current]);
     });
 
     return () => {
@@ -249,7 +249,7 @@ function Particles() {
   }, [scene]);
 
   useEffect(() => {
-    if (!loadComplete) return;
+    if (!particleSystem) return;
     const onScroll = () => {
       const triggerHeight = window.innerHeight / 2;
       const progress = Math.min(Math.max(window.scrollY / triggerHeight, 0), 2);
@@ -293,7 +293,7 @@ function Particles() {
     window.addEventListener('resize', adjustCamera);
     adjustCamera();
 
-    let start = performance.now();
+    const start = performance.now();
     const duration = 2000;
 
     const animate = (time: number) => {
@@ -310,11 +310,12 @@ function Particles() {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', adjustCamera);
     };
-  }, [loadComplete]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [particleSystem]);
 
   useFrame((state) => {
     if (
-      !loadComplete ||
+      !particleSystem ||
       scrollProgress.current >= 2 ||
       !firstNameRef.current ||
       !lastNameRef.current
@@ -328,22 +329,18 @@ function Particles() {
         ? Math.pow(targetProgress * 2, 5) / 2
         : 1 - Math.pow((1 - targetProgress) * 2, 2) / 2;
 
-    [firstNameRef.current, lastNameRef.current].forEach((sys, idx) => {
+    [firstNameRef.current, lastNameRef.current].forEach((sys) => {
       sys.material.uniforms.time.value = t;
       sys.material.uniforms.progress.value = easedProgress;
       sys.material.uniforms.loadProgress.value = loadProgress.current;
     });
 
-    camera.position.z += (targetZ.current - camera.position.z) * 0.1;
+    const newZ = camera.position.z + (targetZ.current - camera.position.z) * 0.1;
+    camera.position.set(camera.position.x, camera.position.y, newZ);
     invalidate();
   });
 
-  return (
-    <>
-      {firstNameRef.current && <primitive object={firstNameRef.current} />}
-      {lastNameRef.current && <primitive object={lastNameRef.current} />}
-    </>
-  );
+  return <>{particleSystem?.map((obj, i) => obj && <primitive key={i} object={obj} />)}</>;
 }
 
 export default function Hero() {
