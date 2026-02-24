@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Figtree, Space_Grotesk } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import UIProvider from '@components/ui-provider';
 import '@/globals.css';
 
@@ -65,6 +66,7 @@ export default function RootLayout({
       >
         <UIProvider>{children}</UIProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
