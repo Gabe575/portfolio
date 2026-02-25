@@ -1,5 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import Marquee from '@components/marquee';
+import { useUI } from '@components/ui-provider';
 
 const languages = [
   { name: 'C#', icon: <Image src="/svg/csharp.svg" alt="C#" width={48} height={48} /> },
@@ -37,40 +40,80 @@ const frameworks = [
 ];
 
 export default function ScrollingLanguages() {
+  const { animationsEnabled } = useUI();
   return (
     <>
-      <div className="relative flex flex-col justify-between items-center w-full h-68 md:hidden">
-        <Marquee direction="left" gradient gradientWidth={100}>
-          {languages.map((lang, idx) => (
-            <div key={idx} className="languages-div mr-2">
-              {lang.icon} {lang.name}
+      {animationsEnabled ? (
+        <>
+          <div className="relative flex flex-col justify-between items-center w-full h-68 md:hidden">
+            <Marquee direction="left" gradient gradientWidth={100}>
+              {languages.map((lang, idx) => (
+                <div key={idx} className="languages-div mr-2">
+                  {lang.icon} {lang.name}
+                </div>
+              ))}
+            </Marquee>
+            <Marquee direction="right" gradient gradientWidth={100}>
+              {frameworks.map((lang, idx) => (
+                <div key={idx} className="languages-div mr-2">
+                  {lang.icon} {lang.name}
+                </div>
+              ))}
+            </Marquee>
+          </div>
+          <div className="relative flex flex-row justify-between items-start w-68 min-w-68 -mt-24 max-md:hidden h-207 lg:h-256 lg:w-96 lg:min-w-96 xl:w-140 xl:min-w-140">
+            <Marquee direction="up" gradient>
+              {languages.map((lang, idx) => (
+                <div key={idx} className="languages-div mb-2 xl:mb-4">
+                  {lang.icon} {lang.name}
+                </div>
+              ))}
+            </Marquee>
+            <Marquee direction="down" gradient>
+              {frameworks.map((lang, idx) => (
+                <div key={idx} className="languages-div mb-2 xl:mb-4">
+                  {lang.icon} {lang.name}
+                </div>
+              ))}
+            </Marquee>
+          </div>
+        </>
+      ) : (
+        <div className="flex md:flex-col gap-4 w-full h-64 md:h-207 lg:h-256 md:-mt-24 items-center justify-center">
+          <div className="flex max-md:flex-col gap-4 max-sm:hidden">
+            <div className="languages-div xl:h-56 xl:w-56">
+              {languages[2].icon} {languages[2].name}
             </div>
-          ))}
-        </Marquee>
-        <Marquee direction="right" gradient gradientWidth={100}>
-          {frameworks.map((lang, idx) => (
-            <div key={idx} className="languages-div mr-2">
-              {lang.icon} {lang.name}
+            <div className="languages-div xl:h-56 xl:w-56">
+              {languages[1].icon} {languages[1].name}
             </div>
-          ))}
-        </Marquee>
-      </div>
-      <div className="relative flex flex-row justify-between items-start w-68 min-w-68 -mt-24 max-md:hidden h-207 lg:h-256 lg:w-96 lg:min-w-96 xl:w-140 xl:min-w-140">
-        <Marquee direction="up" gradient>
-          {languages.map((lang, idx) => (
-            <div key={idx} className="languages-div mb-2 xl:mb-4">
-              {lang.icon} {lang.name}
+          </div>
+          <div className="flex max-md:flex-col gap-4">
+            <div className="languages-div xl:h-56 xl:w-56">
+              {languages[3].icon} {languages[3].name}
             </div>
-          ))}
-        </Marquee>
-        <Marquee direction="down" gradient>
-          {frameworks.map((lang, idx) => (
-            <div key={idx} className="languages-div mb-2 xl:mb-4">
-              {lang.icon} {lang.name}
+            <div className="languages-div xl:h-56 xl:w-56">
+              {languages[7].icon} {languages[7].name}
             </div>
-          ))}
-        </Marquee>
-      </div>
+          </div>
+          <div className="flex max-md:flex-col gap-4 max-sm:hidden">
+            <div className="languages-div xl:h-56 xl:w-56">
+              {frameworks[0].icon} {frameworks[0].name}
+            </div>
+            <div className="languages-div xl:h-56 xl:w-56">
+              {frameworks[6].icon} {frameworks[6].name}
+            </div>
+          </div>
+          <div className="flex max-md:flex-col gap-4">
+            <div className="languages-div xl:h-56 xl:w-56">
+              {frameworks[1].icon} {frameworks[1].name}
+            </div>
+            <div className="languages-div xl:h-56 xl:w-56">
+              {frameworks[4].icon} {frameworks[4].name}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

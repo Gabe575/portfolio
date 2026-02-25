@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { FontLoader, Font } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js';
+import { useUI } from '@components/ui-provider';
 
 const vertexShader = `
   uniform float time;
@@ -344,6 +345,31 @@ function Particles() {
 }
 
 export default function Hero() {
+  const { animationsEnabled } = useUI();
+
+  if (!animationsEnabled) {
+    return (
+      <div className="w-full h-full flex flex-col justify-center items-center z-1">
+        <h1
+          className="text-7xl md:text-9xl text-white font-bold"
+          style={{
+            textShadow: '0 0 24px darkturquoise',
+          }}
+        >
+          Gabriel
+        </h1>
+        <h1
+          className="text-7xl md:text-9xl text-white font-bold"
+          style={{
+            textShadow: '0 0 24px mediumseagreen',
+          }}
+        >
+          Santos
+        </h1>
+      </div>
+    );
+  }
+
   return (
     <Canvas camera={{ position: [0, 0, 0], fov: 90 }} frameloop="demand">
       <ambientLight />

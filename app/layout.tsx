@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import { Figtree, Space_Grotesk } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -53,18 +54,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const animationDisabled = cookieStore.get('animation')?.value === 'false';
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
       <body
         className={`${figtree.variable} ${spaceGrotesk.variable} antialiased transition-colors duration-300`}
       >
-        <UIProvider>{children}</UIProvider>
+        <UIProvider animationDisabled={animationDisabled}>{children}</UIProvider>
         <Analytics />
         <SpeedInsights />
       </body>

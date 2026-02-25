@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import ModeToggle from '@components/mode-toggle';
 import { useUI } from '@components/ui-provider';
 import { FiX, FiMenu } from 'react-icons/fi';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export default function Navbar() {
   const prevScrollPos = useRef(0);
@@ -13,11 +13,16 @@ export default function Navbar() {
   const [isVisible, setIsVisible] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const { projectOpen } = useUI();
+  const { projectOpen, animationsEnabled } = useUI();
 
   useEffect(() => {
     if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
+    }
+    if (!animationsEnabled) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsVisible(true);
+      return;
     }
 
     const handleScroll = () => {
@@ -61,45 +66,38 @@ export default function Navbar() {
         ignoreScroll.current = false;
       });
     };
-  }, []);
+  }, [animationsEnabled]);
 
   useEffect(() => {
     if (projectOpen) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsVisible(false);
       setIsOpen(false);
+    } else if (!animationsEnabled) {
+      setIsVisible(true);
     }
-  }, [projectOpen]);
+  }, [projectOpen, animationsEnabled]);
 
   return (
     <>
-      <AnimatePresence>
-        {projectOpen && (
-          <motion.div
-            className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ type: 'tween', duration: 0.5 }}
-          />
-        )}
-      </AnimatePresence>
       <div
         className="fixed top-0 left-0 w-full h-20 bg-transparent z-10"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => {
-          setIsHovered(false);
-          setIsOpen(false);
-        }}
+        {...(animationsEnabled && {
+          onMouseEnter: () => setIsHovered(true),
+          onMouseLeave: () => {
+            setIsHovered(false);
+            setIsOpen(false);
+          },
+        })}
       />
       <motion.nav
         className={`fixed transform left-full top-4 translate-x-[calc(-100%-1rem)] md:left-1/2 md:-translate-x-1/2 
-        rounded-3xl border border-white/30 dark:border-black/30  max-w-lg bg-white/25 dark:bg-black/25 backdrop-blur-xs z-50 shadow-md text-xl`}
-        initial={{ translateY: '-200px' }}
+        rounded-3xl border border-white/30 dark:border-black/30  max-w-lg bg-white/25 dark:bg-black/25 backdrop-blur-xs z-30 shadow-md text-xl`}
+        initial={animationsEnabled ? { translateY: '-200px' } : false}
         animate={{
           translateY: isVisible || isHovered ? '0' : '-200px',
         }}
-        transition={{ type: 'tween', duration: 0.3 }}
+        transition={animationsEnabled ? { type: 'tween', duration: 0.3 } : { duration: 0 }}
         ref={menuRef}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => {
@@ -146,7 +144,7 @@ export default function Navbar() {
               padding: isOpen ? '16px 24px' : '0',
               pointerEvents: isOpen ? 'auto' : 'none',
             }}
-            transition={{ type: 'tween', duration: 0.3 }}
+            transition={animationsEnabled ? { type: 'tween', duration: 0.3 } : { duration: 0 }}
           >
             <a
               href="#home"

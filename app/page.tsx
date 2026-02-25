@@ -4,6 +4,7 @@ import ScrollingLanguages from '@components/scrolling-languages';
 import Project from '@components/project';
 import ContactForm from '@components/contact-form';
 import Hero from '@components/hero';
+import AnimationsToggle from './components/animations-toggle';
 
 export default function Home() {
   return (
@@ -27,6 +28,9 @@ export default function Home() {
         />
         <Hero />
       </section>
+      <div className="sticky bottom-4 mb-4 flex justify-center">
+        <AnimationsToggle />
+      </div>
       <main className="relative flex min-h-screen w-full flex-col items-center sm:items-start">
         <section
           id="about"
