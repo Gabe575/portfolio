@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     title: 'Gabriel Santos',
     description:
       'Software engineer specializing in developing and maintaining full-stack web applications with modern technologies. Explore projects, skills, and solutions.',
-    url: 'https://www.gabesantos.ca',
+    url: 'https://gabesantos.ca',
     siteName: 'Gabriel Santos Portfolio',
     images: [
       {

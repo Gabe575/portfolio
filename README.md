@@ -8,7 +8,7 @@ The site showcases my projects, skills, and includes a contact form with social 
 
 This project was a chance for me to experiment with server actions, rate limiting strategies, custom Three.js components and more in a real world app.
 
-Live demo: https://www.gabesantos.ca
+Live demo: https://gabesantos.ca
 
 ### Built With
 

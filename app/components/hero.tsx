@@ -375,7 +375,7 @@ export default function Hero() {
       <ambientLight />
       <Particles />
       <EffectComposer>
-        <Bloom intensity={1.5} luminanceThreshold={0.5} luminanceSmoothing={0.9} radius={0.4} />
+        <Bloom intensity={0.5} luminanceThreshold={0.5} luminanceSmoothing={0.9} radius={0.4} />
       </EffectComposer>
     </Canvas>
   );
