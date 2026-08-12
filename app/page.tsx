@@ -53,9 +53,12 @@ export default function Home() {
                 </p>
                 <div className="md:text-start py-4 max-sm:px-6 max-md:px-16 md:py-8">
                   <p className="text-sm sm:text-base lg:text-lg text-zinc-600 dark:text-zinc-400">
-                    I&apos;ve gained experience in a variety of programming languages and frameworks
-                    throughout my time working in internships, personal projects, and studying{' '}
-                    <b>Software Engineering</b> at <b>Western University</b>.
+                    Experienced professional in building full-stack, cloud, and mobile applications.
+                    I&apos;ve worked on production financial software, customer-facing features,
+                    APIs, microservices, and mobile applications, with an interest in learning new
+                    technologies and solving complex problems. My experience includes a variety of
+                    programming languages and frameworks, developed through internships, personal
+                    projects, and studying <b>Software Engineering</b> at <b>Western University</b>.
                   </p>
                 </div>
               </div>
@@ -70,15 +73,70 @@ export default function Home() {
         >
           <div className="max-w-7xl mx-auto w-full">
             <h2 className="section-title">Projects</h2>
-            <p className="text-zinc-600 dark:text-zinc-400">More coming soon...</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-7xl mx-auto pt-16 pb-32">
+            <Project title="Mayoral Candidate Website" image="/mayor.jpg">
+              <div className="max-w-5xl text-base sm:leading-relaxed md:text-lg lg:text-xl xl:text-2xl xl:leading-loose">
+                <p>
+                  I independently designed and developed this production campaign website in
+                  coordination with a local mayoral candidate, creating a polished and accessible
+                  platform for sharing campaign information, policies, and updates with voters. The
+                  site also integrates payment processing and transactional email, with serverless
+                  infrastructure supporting campaign operations and handling traffic of up to 2,000
+                  visitors in a single day.
+                </p>
+                <br />
+                <p className="font-semibold lg:text-center lg:p-4">The stack:</p>
+                <ul className="flex flex-col sm:flex-row sm:justify-center gap-x-16 flex-wrap list-disc list-inside">
+                  <li>Astro (TypeScript)</li>
+                  <li>Stripe</li>
+                  <li>Resend (contact form)</li>
+                  <li>Cloudflare D1 + Workers</li>
+                </ul>
+                <br />
+                <p className="font-semibold lg:text-center lg:p-4">
+                  Live URL:{' '}
+                  <a
+                    href="https://zebuunformayor.ca"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 dark:text-indigo-400 hover:underline lg:p-4"
+                  >
+                    zebuunformayor.ca
+                  </a>
+                </p>
+              </div>
+            </Project>
+
+            <Project title="Roadside Traffic Counter" image="/counter.jpg">
+              <div className="max-w-5xl text-base sm:leading-relaxed md:text-lg lg:text-xl xl:text-2xl xl:leading-loose">
+                <p>
+                  I developed a roadside traffic-counting system in collaboration with a research
+                  team at Western University. I programmed and optimized Arduino-based hardware in
+                  C++, improving vehicle speed detection accuracy and runtime performance while
+                  expanding the system to collect additional traffic data. I also developed Python
+                  and Django services for data processing and device configuration and deployed
+                  supporting services using Linux, SSH, and Azure.
+                </p>
+                <br />
+                <p className="font-semibold lg:text-center lg:p-4">The stack:</p>
+                <ul className="flex flex-col sm:flex-row sm:justify-center gap-x-16 flex-wrap list-disc list-inside">
+                  <li>Arduino (C++)</li>
+                  <li>Python + Django</li>
+                  <li>HTML + CSS + JavaScript</li>
+                  <li>Linux + SSH</li>
+                  <li>Azure (hosting, IoT, Service Bus)</li>
+                </ul>
+              </div>
+            </Project>
+
             <Project title="Portfolio Website" image="/portfolio.jpg">
               <div className="max-w-5xl text-base sm:leading-relaxed md:text-lg lg:text-xl xl:text-2xl xl:leading-loose">
                 <p>
-                  This portfolio website is the first major project I&apos;ve worked on. I built it
-                  as a space to showcase my future work while also serving as a personal web sandbox
-                  where I can experiment and try new things.
+                  This portfolio website serves as both a showcase for my work and a personal
+                  sandbox for experimenting with new technologies. I designed and developed the site
+                  from scratch, incorporating interactive animations, custom WebGL effects, a
+                  serverless contact system, and responsive design across devices.
                 </p>
                 <br />
                 <p className="font-semibold lg:text-center lg:p-4">The stack:</p>
