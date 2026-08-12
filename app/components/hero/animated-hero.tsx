@@ -6,7 +6,6 @@ import * as THREE from 'three';
 import { FontLoader, Font } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js';
-import { useUI } from '@components/ui-provider';
 
 const vertexShader = `
   uniform float time;
@@ -203,7 +202,7 @@ const generateParticleText = (
   return particleSystem as ShaderPoints;
 };
 
-function Particles() {
+function Particles({ onReady }: { onReady?: () => void }) {
   const { scene, camera, invalidate } = useThree();
   const firstNameRef = useRef<ShaderPoints | null>(null);
   const lastNameRef = useRef<ShaderPoints | null>(null);
@@ -314,6 +313,15 @@ function Particles() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [particleSystem]);
 
+  const readyCalled = useRef(false);
+
+  useEffect(() => {
+    if (!particleSystem || readyCalled.current) return;
+
+    readyCalled.current = true;
+    onReady?.();
+  }, [particleSystem, onReady]);
+
   useFrame((state) => {
     if (
       !particleSystem ||
@@ -344,36 +352,17 @@ function Particles() {
   return <>{particleSystem?.map((obj, i) => obj && <primitive key={i} object={obj} />)}</>;
 }
 
-export default function Hero() {
-  const { animationsEnabled } = useUI();
+interface AnimatedHeroProps {
+  onReady?: () => void;
+}
 
-  if (!animationsEnabled) {
-    return (
-      <div className="w-full h-full flex flex-col justify-center items-center z-1">
-        <h1
-          className="text-7xl md:text-9xl text-white font-bold"
-          style={{
-            textShadow: '0 0 24px darkturquoise',
-          }}
-        >
-          Gabriel
-        </h1>
-        <h1
-          className="text-7xl md:text-9xl text-white font-bold"
-          style={{
-            textShadow: '0 0 24px mediumseagreen',
-          }}
-        >
-          Santos
-        </h1>
-      </div>
-    );
-  }
-
+export default function AnimatedHero({ onReady }: AnimatedHeroProps) {
   return (
     <Canvas camera={{ position: [0, 0, 0], fov: 90 }} frameloop="demand">
       <ambientLight />
-      <Particles />
+
+      <Particles onReady={onReady} />
+
       <EffectComposer>
         <Bloom intensity={0.5} luminanceThreshold={0.5} luminanceSmoothing={0.9} radius={0.4} />
       </EffectComposer>

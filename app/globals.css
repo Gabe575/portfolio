@@ -230,3 +230,82 @@ h4 {
     gradientShift 6s ease infinite,
     glowPulse 3s ease-in-out infinite;
 }
+
+.static-hero-particle {
+  position: absolute;
+  display: block;
+  border-radius: 9999px;
+  opacity: 0;
+  transform: translate3d(0, 25px, 0) scale(0.8);
+  animation-name: static-hero-float;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes static-hero-float {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 30px, 0) scale(0.7);
+  }
+
+  12% {
+    opacity: 0.7;
+  }
+
+  50% {
+    opacity: 0.45;
+  }
+
+  88% {
+    opacity: 0.15;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -180px, 0) scale(1);
+  }
+}
+
+.hero-word {
+  display: inline-block;
+  transition:
+    transform 900ms cubic-bezier(0.76, 0, 0.24, 1),
+    opacity 300ms ease;
+}
+
+.hero-word-exit-left {
+  transform: translateX(-50vw);
+  opacity: 0;
+}
+
+.hero-word-exit-right {
+  transform: translateX(50vw);
+  opacity: 0;
+}
+
+.hero-accent {
+  display: block;
+  height: 1px;
+  width: 2rem;
+  flex-shrink: 0;
+  transition:
+    transform 900ms cubic-bezier(0.76, 0, 0.24, 1),
+    opacity 700ms ease;
+}
+
+@media (min-width: 640px) {
+  .hero-accent {
+    width: 3rem;
+  }
+}
+
+.hero-accent-exit-left {
+  transform: translateX(-50vw);
+  opacity: 0;
+}
+
+.hero-accent-exit-right {
+  transform: translateX(50vw);
+  opacity: 0;
+}

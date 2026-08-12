@@ -3,7 +3,7 @@ import ScrollingLanguages from '@components/scrolling-languages';
 import InteractivePortrait from '@components/interactive-portrait';
 import Project from '@components/project';
 import ContactForm from '@components/contact-form';
-import Hero from '@components/hero';
+import Hero from '@components/hero/base-hero';
 import AnimationsToggle from './components/animations-toggle';
 
 export default function Home() {
