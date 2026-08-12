@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useUI } from '@components/ui-provider';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const AnimatedHero = dynamic(() => import('@components/hero/animated-hero'), {
   ssr: false,
@@ -160,22 +160,35 @@ function HeroText({ exiting = false }: { exiting?: boolean }) {
   );
 }
 
-function AnimatedHeroWrapper() {
+function AnimatedHeroWrapper({ animationsEnabled }: { animationsEnabled: boolean }) {
   const [staticExiting, setStaticExiting] = useState(false);
+  const [showAnimatedHero, setShowAnimatedHero] = useState(false);
+
+  useEffect(() => {
+    if (!animationsEnabled) return;
+
+    const timeout = setTimeout(() => {
+      setShowAnimatedHero(true);
+    }, 250); // Delay so the exit animation doesn't play immediately on fast devices
+
+    return () => clearTimeout(timeout);
+  }, [animationsEnabled]);
 
   return (
     <div className="relative h-full w-full overflow-hidden">
       <StaticHero>
-        <HeroText exiting={staticExiting} />
+        <HeroText exiting={animationsEnabled && staticExiting} />
       </StaticHero>
 
-      <div className="absolute inset-0 z-10">
-        <AnimatedHero
-          onReady={() => {
-            setStaticExiting(true);
-          }}
-        />
-      </div>
+      {animationsEnabled && showAnimatedHero && (
+        <div className="absolute inset-0 z-10">
+          <AnimatedHero
+            onReady={() => {
+              setStaticExiting(true);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -183,13 +196,5 @@ function AnimatedHeroWrapper() {
 export default function Hero() {
   const { animationsEnabled } = useUI();
 
-  if (!animationsEnabled) {
-    return (
-      <StaticHero>
-        <HeroText />
-      </StaticHero>
-    );
-  }
-
-  return <AnimatedHeroWrapper />;
+  return <AnimatedHeroWrapper animationsEnabled={animationsEnabled} />;
 }
