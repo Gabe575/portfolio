@@ -18,7 +18,7 @@ export default function AnimationsToggle() {
               __html: `
               <button
                 id="disable-animations-btn"
-                class="opacity-0 animate-fade-in text-sm lg:text-base py-2 px-10 pointer-cursor"
+                class="opacity-0 animate-fade-in text-sm lg:text-base py-2 px-10 pointer-cursor text-white"
               >
                 disable animations
               </button>
@@ -44,7 +44,10 @@ export default function AnimationsToggle() {
   };
 
   return (
-    <button onClick={handleToggle} className={'text-sm lg:text-base py-2 px-10 pointer-cursor'}>
+    <button
+      onClick={handleToggle}
+      className={'text-sm lg:text-base py-2 px-10 pointer-cursor text-white'}
+    >
       {animationsEnabled ? 'disable animations' : 'enable animations'}
     </button>
   );

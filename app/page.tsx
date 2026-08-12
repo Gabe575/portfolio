@@ -15,9 +15,8 @@ export default function Home() {
       >
         <div
           className="absolute inset-0 
-        bg-linear-to-b from-[#ededed] via-slate-900 to-indigo-300 
-        transition-opacity duration-300 
-        dark:opacity-0 opacity-100 pointer-events-none"
+        bg-linear-to-b from-[#222222] via-slate-950 to-purple-900
+        opacity-100 pointer-events-none"
         />
 
         <div
