@@ -1,6 +1,7 @@
 import { FiGithub, FiLinkedin } from 'react-icons/fi';
 import Image from 'next/image';
 import ScrollingLanguages from '@components/scrolling-languages';
+import InteractivePortrait from '@components/interactive-portrait';
 import Project from '@components/project';
 import ContactForm from '@components/contact-form';
 import Hero from '@components/hero';
@@ -40,11 +41,7 @@ export default function Home() {
             <div className="flex flex-col items-center justify-between md:flex-row md:items-start gap-8 max-md:pb-16 ">
               <div className="items-center text-center max-sm:px-6">
                 <h2 className="section-title md:text-left pb-8">About</h2>
-                <div className="inline-block p-1 mb-4 rounded-full bg-linear-to-r from-pink-400 via-indigo-400 to-emerald-400 animate-border">
-                  <div className="rounded-full overflow-hidden max-w-32 sm:max-w-48 lg:max-w-96">
-                    <Image src="/headshot.jpg" alt="Gabriel Santos" width={480} height={480} />
-                  </div>
-                </div>
+                <InteractivePortrait />
                 <p className="lg:text-xl">
                   Hey! I&apos;m Gabe, a software engineer and full stack developer based&nbsp;in
                 </p>
