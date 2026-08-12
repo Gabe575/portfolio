@@ -1,5 +1,4 @@
 import { FiGithub, FiLinkedin } from 'react-icons/fi';
-import Image from 'next/image';
 import ScrollingLanguages from '@components/scrolling-languages';
 import InteractivePortrait from '@components/interactive-portrait';
 import Project from '@components/project';

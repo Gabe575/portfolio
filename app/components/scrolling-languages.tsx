@@ -5,6 +5,7 @@ import Marquee from '@components/marquee';
 import { useUI } from '@components/ui-provider';
 
 const languages = [
+  { name: 'Azure', icon: <Image src="/svg/azure.svg" alt="Azure" width={48} height={48} /> },
   { name: 'C#', icon: <Image src="/svg/csharp.svg" alt="C#" width={48} height={48} /> },
   { name: 'C++', icon: <Image src="/svg/cplusplus.svg" alt="C++" width={48} height={48} /> },
   { name: 'Git', icon: <Image src="/svg/git.svg" alt="Git" width={48} height={48} /> },
@@ -27,6 +28,7 @@ const languages = [
 const frameworks = [
   { name: '.NET', icon: <Image src="/svg/dotnet.svg" alt=".NET" width={48} height={48} /> },
   { name: 'Angular', icon: <Image src="/svg/angular.svg" alt="Angular" width={48} height={48} /> },
+  { name: 'Astro', icon: <Image src="/svg/astro.svg" alt="Astro" width={48} height={48} /> },
   { name: 'Django', icon: <Image src="/svg/django.svg" alt="Django" width={48} height={48} /> },
   { name: 'MongoDB', icon: <Image src="/svg/mongodb.svg" alt="MongoDB" width={48} height={48} /> },
   { name: 'NextJS', icon: <Image src="/svg/nextjs.svg" alt="NextJS" width={48} height={48} /> },
@@ -82,7 +84,7 @@ export default function ScrollingLanguages() {
         <div className="flex md:flex-col gap-4 w-full h-64 md:h-207 lg:h-256 md:-mt-24 items-center justify-center">
           <div className="flex max-md:flex-col gap-4 max-sm:hidden">
             <div className="languages-div xl:h-56 xl:w-56">
-              {languages[2].icon} {languages[2].name}
+              {languages[0].icon} {languages[0].name}
             </div>
             <div className="languages-div xl:h-56 xl:w-56">
               {languages[1].icon} {languages[1].name}
@@ -90,7 +92,7 @@ export default function ScrollingLanguages() {
           </div>
           <div className="flex max-md:flex-col gap-4">
             <div className="languages-div xl:h-56 xl:w-56">
-              {languages[3].icon} {languages[3].name}
+              {languages[4].icon} {languages[4].name}
             </div>
             <div className="languages-div xl:h-56 xl:w-56">
               {languages[7].icon} {languages[7].name}
@@ -101,7 +103,7 @@ export default function ScrollingLanguages() {
               {frameworks[0].icon} {frameworks[0].name}
             </div>
             <div className="languages-div xl:h-56 xl:w-56">
-              {frameworks[6].icon} {frameworks[6].name}
+              {frameworks[7].icon} {frameworks[7].name}
             </div>
           </div>
           <div className="flex max-md:flex-col gap-4">
@@ -109,7 +111,7 @@ export default function ScrollingLanguages() {
               {frameworks[1].icon} {frameworks[1].name}
             </div>
             <div className="languages-div xl:h-56 xl:w-56">
-              {frameworks[4].icon} {frameworks[4].name}
+              {frameworks[5].icon} {frameworks[5].name}
             </div>
           </div>
         </div>
