@@ -39,7 +39,6 @@ export default function InteractivePortrait() {
   const pointerY = useRef(0);
 
   const portraitRef = useRef<HTMLDivElement>(null);
-  const shadowRef = useRef<HTMLDivElement>(null);
 
   const updateRotation = useCallback((value: number) => {
     rotationRef.current = value;
@@ -57,19 +56,6 @@ export default function InteractivePortrait() {
 
     if (portraitRef.current) {
       portraitRef.current.style.transform = `rotateX(${tilt}deg) rotateY(${rotation}deg)`;
-    }
-
-    const normalizedRotation = ((rotation % 360) + 360) % 360;
-
-    const radians = (normalizedRotation * Math.PI) / 180;
-
-    const shadowX = Math.sin(radians) * 12;
-    const shadowOpacity = 0.01 + Math.abs(Math.cos(radians)) * 0.24;
-
-    if (shadowRef.current) {
-      shadowRef.current.style.transform = `translateX(${shadowX}px) translateY(8px) scale(0.92)`;
-
-      shadowRef.current.style.opacity = String(shadowOpacity);
     }
   }, []);
 
@@ -285,13 +271,6 @@ export default function InteractivePortrait() {
   const displayedRotation = animationsEnabled ? rotation : 0;
   const displayedTilt = animationsEnabled ? tilt : 0;
 
-  const normalizedRotation = ((displayedRotation % 360) + 360) % 360;
-
-  const radians = (normalizedRotation * Math.PI) / 180;
-
-  const shadowX = Math.sin(radians) * 12;
-  const shadowOpacity = 0.01 + Math.abs(Math.cos(radians)) * 0.24;
-
   return (
     <div
       className="relative inline-block h-32 w-32 sm:h-48 sm:w-48 lg:h-96 lg:w-96 mb-4"
@@ -314,17 +293,6 @@ export default function InteractivePortrait() {
           : 'Portrait of Gabriel Santos'
       }
     >
-      {/* Dynamic shadow */}
-      <div
-        ref={shadowRef}
-        className="pointer-events-none absolute inset-2 rounded-full bg-black blur-md"
-        style={{
-          opacity: animationsEnabled ? shadowOpacity : 0.2,
-          transform: `translateX(${shadowX}px) translateY(8px) scale(0.92)`,
-          transition: isDragging ? 'none' : 'transform 150ms ease-out, opacity 150ms ease-out',
-        }}
-      />
-
       <div
         ref={portraitRef}
         className="relative h-full w-full"
@@ -337,22 +305,13 @@ export default function InteractivePortrait() {
               : 'none',
         }}
       >
-        {/* Solid center wall */}
-        <div
-          className="pointer-events-none absolute inset-0 overflow-hidden rounded-full"
-          style={{
-            transform: 'rotateY(90deg)',
-          }}
-        >
-          <div className="absolute left-1/2 top-0 h-full w-2.75 -translate-x-1/2 bg-linear-to-br from-pink-400 via-indigo-400 to-emerald-400" />
-        </div>
         {/* Coin thickness */}
         {Array.from({ length: 6 }).map((_, index) => (
           <div
             key={index}
             className={`absolute inset-0 overflow-hidden rounded-full bg-linear-to-br from-pink-400 via-indigo-400 to-emerald-400 ${index === 2 || index === 3 ? 'animate-border' : ''}`}
             style={{
-              transform: `translateZ(${-6 + index * 2}px)`,
+              transform: `translateZ(${index}px)`,
             }}
           />
         ))}
@@ -380,7 +339,7 @@ export default function InteractivePortrait() {
         <div
           className="absolute inset-0 overflow-hidden rounded-full border-4 border-white/20"
           style={{
-            transform: 'rotateY(180deg) translateZ(6px)',
+            transform: 'rotateY(180deg)',
             backfaceVisibility: 'hidden',
           }}
         >
