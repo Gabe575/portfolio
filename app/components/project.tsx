@@ -51,12 +51,12 @@ export default function Project({
       <div className="h-50 sm:h-75 md:h-60 lg:h-75 xl:h-100" ref={cardRef}>
         <div
           className={`relative w-full h-full backface-hidden border-2 rounded-2xl border-slate-400 dark:border-zinc-500 bg-cover bg-center overflow-hidden 
-            transition-all duration-300 ${animationsEnabled && 'hover:scale-105'} cursor-pointer ${!cardVisible && 'hidden'}`}
+            transition-transform duration-300 ${animationsEnabled && 'hover:scale-105'} cursor-pointer ${!cardVisible && 'hidden'}`}
           style={{ backgroundImage: `url(${image})` }}
           onClick={handleOpen}
         >
           <motion.div
-            className="absolute flex bottom-0 w-full bg-white/60 dark:bg-black/60 backdrop-blur-xs justify-center items-center transition-colors duration-300 overflow-hidden"
+            className="absolute flex bottom-0 w-full bg-white/60 dark:bg-black/60 backdrop-blur-xs justify-center items-center overflow-hidden"
             initial={false}
             animate={{
               height: cardVisible ? '33.3333%' : '0',

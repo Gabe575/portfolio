@@ -64,9 +64,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
-      <body
-        className={`${figtree.variable} ${spaceGrotesk.variable} antialiased transition-colors duration-300`}
-      >
+      <body className={`${figtree.variable} ${spaceGrotesk.variable} antialiased`}>
         <UIProvider animationDisabled={animationDisabled}>{children}</UIProvider>
         <Analytics />
         <SpeedInsights />

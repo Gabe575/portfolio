@@ -74,7 +74,7 @@ export default function ContactForm() {
           <button
             type="submit"
             disabled={isPending || messageLength > MESSAGE_LIMIT}
-            className={`px-4 py-2 min-h-12 whitespace-nowrap border-2 ${success ? 'border-green-400 bg-green-200 dark:bg-green-950 dark:border-green-800' : 'border-slate-400 bg-slate-300 active:bg-slate-400 dark:bg-zinc-700 dark:border-zinc-500 dark:active:bg-zinc-500'} disabled:opacity-50 active:scale-95 transition-all duration-300 rounded`}
+            className={`px-4 py-2 min-h-12 whitespace-nowrap border-2 ${success ? 'border-green-400 bg-green-200 dark:bg-green-950 dark:border-green-800' : 'border-slate-400 bg-slate-300 active:bg-slate-400 dark:bg-zinc-700 dark:border-zinc-500 dark:active:bg-zinc-500'} disabled:opacity-50 active:scale-95 rounded`}
           >
             {isPending ? (
               <div className="w-5 h-5 border-2 border-t-transparent border-slate-400 dark:border-zinc-500 dark:border-t-transparent rounded-full animate-spin mx-auto"></div>
