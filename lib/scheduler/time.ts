@@ -83,11 +83,16 @@ export function addDays(date: string, days: number): string {
 }
 
 export function freezeWeeks(now: Date, timezone: string) {
-  const earliestDate = localParts(now.getTime(), timezone).date;
-  const weekday = new Date(`${earliestDate}T12:00:00Z`).getUTCDay();
-  const monday = addDays(earliestDate, -((weekday + 6) % 7));
+  const creationDate = localParts(now.getTime(), timezone).date;
+  const weekday = new Date(`${creationDate}T12:00:00Z`).getUTCDay();
+  const daysSinceMonday = (weekday + 6) % 7;
+  // Friday through Sunday requests begin with the coming calendar week.
+  const monday = addDays(
+    creationDate,
+    daysSinceMonday >= 4 ? 7 - daysSinceMonday : -daysSinceMonday,
+  );
   return {
-    earliestDate,
+    earliestDate: creationDate < monday ? monday : creationDate,
     thisWeekStartDate: monday,
     thisWeekEndDate: addDays(monday, 6),
     nextWeekStartDate: addDays(monday, 7),

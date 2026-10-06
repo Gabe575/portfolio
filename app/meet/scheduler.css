@@ -71,12 +71,19 @@
   .availability-cell {
     @apply flex h-11 w-full select-none items-center justify-center border-b border-r border-slate-300 bg-white text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400;
   }
-  button.availability-cell:not(:disabled):hover {
-    @apply bg-blue-100 dark:bg-indigo-950;
+  .availability-cell > span {
+    pointer-events: none;
   }
-  .availability-selected,
-  button.availability-selected:not(:disabled):hover {
+  .availability-selected {
     @apply bg-blue-700 font-semibold text-white dark:bg-indigo-600 dark:text-white;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    button.availability-cell:not(:disabled):hover {
+      @apply bg-blue-100 dark:bg-indigo-950;
+    }
+    button.availability-selected:not(:disabled):hover {
+      @apply bg-blue-700 text-white dark:bg-indigo-600 dark:text-white;
+    }
   }
   .availability-disabled {
     @apply cursor-not-allowed bg-zinc-200 dark:bg-zinc-800;

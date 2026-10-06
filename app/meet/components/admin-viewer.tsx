@@ -67,8 +67,7 @@ export default function AdminViewer({ request }: { request: AvailabilityRequest 
         <div className="py-10 text-center">
           <h2 className="text-xl">This week was not provided</h2>
           <p className="scheduler-muted mt-3">
-            The respondent chose {scopeLabels[request.response.scope].toLowerCase()}. This does not
-            mean they&apos;re unavailable during this week.
+            This does not necessarily mean that they&apos;re unavailable during this week.
           </p>
         </div>
       ) : (

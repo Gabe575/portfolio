@@ -65,7 +65,15 @@ export default function AvailabilityGrid({
     last: Point;
     targets: { key: string; slots: string[]; element: HTMLButtonElement }[];
   } | null>(null);
-  const pointerType = useRef('');
+  const tap = useRef<{
+    pointerId: number;
+    key: string;
+    slots: string[];
+    start: Point;
+    element: HTMLButtonElement;
+    scrollLeft: number;
+    scrollTop: number;
+  } | null>(null);
   const candidates = useMemo(() => {
     const cells = new Map<string, string[]>();
     for (const date of dates) {
@@ -129,6 +137,7 @@ export default function AvailabilityGrid({
   useEffect(() => {
     const stop = () => {
       paint.current = null;
+      tap.current = null;
     };
     window.addEventListener('pointerup', stop);
     window.addEventListener('pointercancel', stop);
@@ -193,6 +202,35 @@ export default function AvailabilityGrid({
     if (changed) onChange?.([...selection.current].sort());
   }
 
+  function movePointer(event: ReactPointerEvent<HTMLDivElement>) {
+    if (tap.current?.pointerId === event.pointerId) {
+      const { start } = tap.current;
+      if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > 10) tap.current = null;
+    }
+    paintStroke(event);
+  }
+
+  function releasePointer(event: ReactPointerEvent<HTMLDivElement>) {
+    paintStroke(event);
+    const gesture = tap.current;
+    tap.current = null;
+    if (!gesture || gesture.pointerId !== event.pointerId || disabled || readOnly) return;
+    const hit = document.elementFromPoint(event.clientX, event.clientY);
+    // Touch clicks may be adjusted to a nearby/focused button by the browser.
+    // Commit the actual pointer gesture instead, and leave scroll gestures alone.
+    if (
+      gesture.element.disabled ||
+      !hit ||
+      !gesture.element.contains(hit) ||
+      Math.hypot(event.clientX - gesture.start.x, event.clientY - gesture.start.y) > 10 ||
+      event.currentTarget.scrollLeft !== gesture.scrollLeft ||
+      event.currentTarget.scrollTop !== gesture.scrollTop
+    )
+      return;
+    selection.current = new Set(slots);
+    update(gesture.key, gesture.slots, !gesture.slots.some((slot) => selection.current.has(slot)));
+  }
+
   function renderCell(date: string, minute: number) {
     const key = `${date}:${minute}`;
     const cell = cells.get(key);
@@ -230,8 +268,22 @@ export default function AvailabilityGrid({
         aria-pressed={cell.available}
         aria-label={label}
         onPointerDown={(event) => {
-          pointerType.current = event.pointerType;
-          if (event.pointerType !== 'mouse' || event.button !== 0) return;
+          if (!event.isPrimary || event.button !== 0) return;
+          tap.current = null;
+          paint.current = null;
+          if (event.pointerType !== 'mouse') {
+            tap.current = {
+              pointerId: event.pointerId,
+              key,
+              slots: cell.slots,
+              start: { x: event.clientX, y: event.clientY },
+              element: event.currentTarget,
+              scrollLeft: viewport.current?.scrollLeft ?? 0,
+              scrollTop: viewport.current?.scrollTop ?? 0,
+            };
+            event.currentTarget.setPointerCapture(event.pointerId);
+            return;
+          }
           event.preventDefault();
           event.currentTarget.focus();
           selection.current = new Set(slots);
@@ -253,14 +305,16 @@ export default function AvailabilityGrid({
           update(key, cell.slots, !cell.available);
         }}
         onClick={(event) => {
-          if (event.detail === 0 || pointerType.current !== 'mouse') {
+          const native = event.nativeEvent;
+          const fromPointer = 'pointerType' in native && Boolean(native.pointerType);
+          // Pointer gestures are already handled above; clicks remain for keyboard/AT activation.
+          if (event.detail === 0 && !fromPointer) {
             selection.current = new Set(slots);
             paint.current = null;
             update(key, cell.slots, !cell.available);
           }
         }}
       >
-        <span className="sr-only">{label}</span>
         {cell.available && <span aria-hidden="true">✓</span>}
       </button>
     );
@@ -289,10 +343,11 @@ export default function AvailabilityGrid({
         role="region"
         aria-label={`Availability calendar in ${timezone}. Scroll to explore days and times.`}
         tabIndex={0}
-        onPointerMove={paintStroke}
-        onPointerUp={paintStroke}
+        onPointerMove={movePointer}
+        onPointerUp={releasePointer}
         onLostPointerCapture={() => {
           paint.current = null;
+          tap.current = null;
         }}
       >
         <div

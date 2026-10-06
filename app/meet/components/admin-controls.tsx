@@ -52,7 +52,8 @@ export function CreateRequestForm({ defaultTimezone }: { defaultTimezone: string
       <TimezoneSelect value={timezone} onChange={setTimezone} disabled={pending} />
       <p className="text-sm scheduler-muted">
         Create a private link for one person to share their availability. This week and next week
-        are fixed using this timezone when you create the request.
+        are fixed using this timezone when you create the request. Requests created Friday through
+        Sunday start the coming Monday.
       </p>
       <button className="scheduler-button scheduler-primary" disabled={pending}>
         {pending ? 'Creating request…' : 'Create availability link'}
