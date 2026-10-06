@@ -5,8 +5,11 @@ import ModeToggle from '@components/mode-toggle';
 import { useUI } from '@components/ui-provider';
 import { FiX, FiMenu } from 'react-icons/fi';
 import { motion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
+  const pathname = usePathname();
+  const anchor = (section: string) => (pathname === '/' ? `#${section}` : `/#${section}`);
   const prevScrollPos = useRef(0);
   const ignoreScroll = useRef(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -107,16 +110,16 @@ export default function Navbar() {
       >
         <div className="hidden md:flex mx-auto items-center justify-center px-6 py-2 md:py-4 overflow-hidden">
           <div className="space-x-8 font-medium justify-center items-center flex">
-            <a href="#home" className="hover:text-blue-600 dark:hover:text-blue-400">
+            <a href={anchor('home')} className="hover:text-blue-600 dark:hover:text-blue-400">
               Home
             </a>
-            <a href="#about" className="hover:text-blue-600 dark:hover:text-blue-400">
+            <a href={anchor('about')} className="hover:text-blue-600 dark:hover:text-blue-400">
               About
             </a>
-            <a href="#projects" className="hover:text-blue-600 dark:hover:text-blue-400">
+            <a href={anchor('projects')} className="hover:text-blue-600 dark:hover:text-blue-400">
               Projects
             </a>
-            <a href="#contact" className="hover:text-blue-600 dark:hover:text-blue-400">
+            <a href={anchor('contact')} className="hover:text-blue-600 dark:hover:text-blue-400">
               Contact
             </a>
             <div className="h-10 w-10">
@@ -147,25 +150,25 @@ export default function Navbar() {
             transition={animationsEnabled ? { type: 'tween', duration: 0.3 } : { duration: 0 }}
           >
             <a
-              href="#home"
+              href={anchor('home')}
               className="block hover:text-blue-600 dark:hover:text-blue-400 w-full text-center"
             >
               Home
             </a>
             <a
-              href="#about"
+              href={anchor('about')}
               className="block hover:text-blue-600 dark:hover:text-blue-400 w-full text-center"
             >
               About
             </a>
             <a
-              href="#projects"
+              href={anchor('projects')}
               className="block hover:text-blue-600 dark:hover:text-blue-400 w-full text-center"
             >
               Projects
             </a>
             <a
-              href="#contact"
+              href={anchor('contact')}
               className="block hover:text-blue-600 dark:hover:text-blue-400 w-full text-center"
             >
               Contact

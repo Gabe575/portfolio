@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { Figtree, Space_Grotesk } from 'next/font/google';
-import { Analytics } from '@vercel/analytics/next';
-import { SpeedInsights } from '@vercel/speed-insights/next';
+import SiteTelemetry from '@components/site-telemetry';
 import UIProvider from '@components/ui-provider';
 import '@/globals.css';
 
@@ -66,8 +65,7 @@ export default async function RootLayout({
       <head />
       <body className={`${figtree.variable} ${spaceGrotesk.variable} antialiased`}>
         <UIProvider animationDisabled={animationDisabled}>{children}</UIProvider>
-        <Analytics />
-        <SpeedInsights />
+        <SiteTelemetry />
       </body>
     </html>
   );

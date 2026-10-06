@@ -3,6 +3,7 @@
 import { ipRateLimiter, globalRateLimiter } from '@lib/ratelimit';
 import { headers } from 'next/headers';
 import { Resend } from 'resend';
+import { escapeHtml } from '@lib/escape-html';
 
 const MIN_SUBMISSION_TIME = 1000;
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -74,10 +75,10 @@ export async function sendEmail(
       subject: `Portfolio inquiry from ${name}`,
       replyTo: email,
       html: `
-      <p><strong>Name:</strong> ${name}</p>
-      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+      <p><strong>Email:</strong> ${escapeHtml(email)}</p>
       <p><strong>Message:</strong></p>
-      <p>${message}</p>
+      <p>${escapeHtml(message)}</p>
     `,
     });
 
