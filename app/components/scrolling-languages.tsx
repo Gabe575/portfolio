@@ -41,81 +41,49 @@ const frameworks = [
   { name: 'Unity', icon: <Image src="/svg/unity.svg" alt="Unity" width={48} height={48} /> },
 ];
 
+function ToolChip({ tool }: { tool: { name: string; icon: React.ReactNode } }) {
+  return (
+    <div className="tool-chip">
+      <span className="grid h-10 w-10 place-items-center rounded-xl bg-surface-2 lg:h-12 lg:w-12">
+        {tool.icon}
+      </span>
+      {tool.name}
+    </div>
+  );
+}
+
 export default function ScrollingLanguages() {
   const { animationsEnabled } = useUI();
+
+  if (!animationsEnabled) {
+    return (
+      <ul className="mx-auto flex max-w-7xl flex-wrap justify-center gap-y-3 px-6 sm:gap-y-4 sm:px-10 lg:px-16">
+        {[...languages, ...frameworks].map((tool) => (
+          <li key={tool.name}>
+            <ToolChip tool={tool} />
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
   return (
-    <>
-      {animationsEnabled ? (
-        <>
-          <div className="relative flex flex-col justify-between items-center w-full h-68 md:hidden">
-            <Marquee direction="left" gradient gradientWidth={100}>
-              {languages.map((lang, idx) => (
-                <div key={idx} className="languages-div mr-2">
-                  {lang.icon} {lang.name}
-                </div>
-              ))}
-            </Marquee>
-            <Marquee direction="right" gradient gradientWidth={100}>
-              {frameworks.map((lang, idx) => (
-                <div key={idx} className="languages-div mr-2">
-                  {lang.icon} {lang.name}
-                </div>
-              ))}
-            </Marquee>
-          </div>
-          <div className="relative flex flex-row justify-between items-start w-68 min-w-68 -mt-24 max-md:hidden h-207 lg:h-256 lg:w-96 lg:min-w-96 xl:w-140 xl:min-w-140">
-            <Marquee direction="up" gradient>
-              {languages.map((lang, idx) => (
-                <div key={idx} className="languages-div mb-2 xl:mb-4">
-                  {lang.icon} {lang.name}
-                </div>
-              ))}
-            </Marquee>
-            <Marquee direction="down" gradient>
-              {frameworks.map((lang, idx) => (
-                <div key={idx} className="languages-div mb-2 xl:mb-4">
-                  {lang.icon} {lang.name}
-                </div>
-              ))}
-            </Marquee>
-          </div>
-        </>
-      ) : (
-        <div className="flex md:flex-col gap-4 w-full h-64 md:h-207 lg:h-256 md:-mt-24 items-center justify-center">
-          <div className="flex max-md:flex-col gap-4 max-sm:hidden">
-            <div className="languages-div xl:h-56 xl:w-56">
-              {languages[0].icon} {languages[0].name}
-            </div>
-            <div className="languages-div xl:h-56 xl:w-56">
-              {languages[1].icon} {languages[1].name}
-            </div>
-          </div>
-          <div className="flex max-md:flex-col gap-4">
-            <div className="languages-div xl:h-56 xl:w-56">
-              {languages[4].icon} {languages[4].name}
-            </div>
-            <div className="languages-div xl:h-56 xl:w-56">
-              {languages[7].icon} {languages[7].name}
-            </div>
-          </div>
-          <div className="flex max-md:flex-col gap-4 max-sm:hidden">
-            <div className="languages-div xl:h-56 xl:w-56">
-              {frameworks[0].icon} {frameworks[0].name}
-            </div>
-            <div className="languages-div xl:h-56 xl:w-56">
-              {frameworks[7].icon} {frameworks[7].name}
-            </div>
-          </div>
-          <div className="flex max-md:flex-col gap-4">
-            <div className="languages-div xl:h-56 xl:w-56">
-              {frameworks[1].icon} {frameworks[1].name}
-            </div>
-            <div className="languages-div xl:h-56 xl:w-56">
-              {frameworks[5].icon} {frameworks[5].name}
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+    <div className="edge-fade-x flex flex-col gap-3 sm:gap-4">
+      {/* Reserve row height: the marquee only renders after mount */}
+      <div className="min-h-[66px] sm:min-h-[74px] lg:min-h-[82px]">
+        <Marquee direction="left" speed={40} pauseOnHover autoFill>
+          {languages.map((tool) => (
+            <ToolChip key={tool.name} tool={tool} />
+          ))}
+        </Marquee>
+      </div>
+      <div className="min-h-[66px] sm:min-h-[74px] lg:min-h-[82px]">
+        <Marquee direction="right" speed={40} pauseOnHover autoFill>
+          {frameworks.map((tool) => (
+            <ToolChip key={tool.name} tool={tool} />
+          ))}
+        </Marquee>
+      </div>
+    </div>
   );
 }

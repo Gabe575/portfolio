@@ -18,10 +18,11 @@ export default async function AdminPage() {
   const timezone = validTimezone(configured) ? configured : 'America/Toronto';
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="section-title">Meeting availability</h1>
-          <p className="scheduler-muted mt-3">
+          <p className="scheduler-label">Admin</p>
+          <h1 className="scheduler-title mt-3">Meeting availability</h1>
+          <p className="scheduler-muted mt-3 text-lg">
             Generate private links to collect meeting availability.
           </p>
         </div>
@@ -30,23 +31,26 @@ export default async function AdminPage() {
         </form>
       </div>
       <CreateRequestForm defaultTimezone={timezone} />
-      <h2 className="text-2xl">
-        Your requests <span className="scheduler-muted text-base">({requests.length})</span>
+      <h2 className="flex items-baseline gap-3 pt-4 font-display text-2xl font-semibold tracking-tight">
+        Your requests
+        <span className="font-mono text-sm font-normal text-faint">{requests.length}</span>
       </h2>
       {requests.length === 0 ? (
-        <div className="scheduler-card">
+        <div className="rounded-3xl border border-dashed border-line-strong p-10 text-center">
           <p className="scheduler-muted">
             No availability requests yet. Create your first availability link above.
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2">
           {requests.map((request) => (
-            <article key={request.id} className="scheduler-card space-y-4">
+            <article key={request.id} className="scheduler-card flex flex-col gap-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h3 className="text-xl wrap-break-word">{request.title}</h3>
-                  <p className="scheduler-muted mt-2 text-sm">
+                  <h3 className="font-display text-xl font-semibold tracking-tight wrap-break-word">
+                    {request.title}
+                  </h3>
+                  <p className="mt-2 font-mono text-xs text-faint">
                     Created{' '}
                     {new Intl.DateTimeFormat('en-CA', {
                       timeZone: request.organizerTimezone,
@@ -64,8 +68,11 @@ export default async function AdminPage() {
                     : 'Awaiting availability'}
                 </span>
               </div>
-              <div className="flex flex-wrap items-start gap-3">
-                <Link className="scheduler-button" href={`/meet/admin/${request.id}`}>
+              <div className="mt-auto flex flex-wrap items-start gap-2 border-t border-line pt-5">
+                <Link
+                  className="scheduler-button scheduler-primary"
+                  href={`/meet/admin/${request.id}`}
+                >
                   View
                 </Link>
                 <CopyRecipientLink slug={request.slug} />

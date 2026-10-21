@@ -1,7 +1,9 @@
 export default function NotFound() {
   return (
     <div className="scheduler-card space-y-3">
-      <h1 className="text-2xl">This availability link is unavailable</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tight">
+        This availability link is unavailable
+      </h1>
       <p className="scheduler-muted">
         It may have been deleted, or the link may be incomplete. Please ask the organizer for a new
         link.

@@ -69,9 +69,16 @@ export async function sendEmail(
       };
     }
 
-    await resend.emails.send({
+    const to = process.env.TO_EMAIL;
+    if (!to) {
+      console.error('TO_EMAIL is not configured');
+      return { error: 'Something went wrong. Please try again later.' };
+    }
+
+    // Resend reports failures in the return value rather than throwing.
+    const { error } = await resend.emails.send({
       from: 'Contact | gabesantos.ca <noreply@gabesantos.ca>',
-      to: process.env.TO_EMAIL || 'placeholder@example.com',
+      to,
       subject: `Portfolio inquiry from ${name}`,
       replyTo: email,
       html: `
@@ -81,6 +88,11 @@ export async function sendEmail(
       <p>${escapeHtml(message)}</p>
     `,
     });
+
+    if (error) {
+      console.error('Failed to send contact email:', error);
+      return { error: 'Something went wrong. Please try again later.' };
+    }
 
     return { success: true };
   } catch {

@@ -12,6 +12,30 @@ const MIN_VELOCITY = 0.05;
 const CLICK_THRESHOLD = 5;
 const MOMENTUM_MULTIPLIER = 0.5;
 
+const THICKNESS = 6;
+const RIM_SEGMENTS = 48;
+const RIM_STOPS = [
+  [244, 114, 182], // pink-400
+  [129, 140, 248], // indigo-400
+  [52, 211, 153], // emerald-400
+];
+// Matches the faces' to-bottom-right gradient, then shades the rim as if lit from above
+const RIM = Array.from({ length: RIM_SEGMENTS }, (_, i) => {
+  const theta = (i / RIM_SEGMENTS) * Math.PI * 2;
+  const t = (2 + Math.sin(theta) - Math.cos(theta)) / 4;
+  const seg = Math.min(Math.floor(t * 2), 1);
+  const local = t * 2 - seg;
+  const shade = 0.6 + 0.3 * ((Math.cos(theta) + 1) / 2);
+  const [r, g, b] = RIM_STOPS[seg].map((c, k) =>
+    Math.round((c + (RIM_STOPS[seg + 1][k] - c) * local) * shade),
+  );
+  return { angle: (theta * 180) / Math.PI, color: `rgb(${r} ${g} ${b})` };
+});
+const RIM_WIDTH = `calc(${((Math.PI * 100) / RIM_SEGMENTS).toFixed(3)}% + 1px)`;
+
+const RIM_REEDING =
+  'repeating-linear-gradient(90deg, rgb(255 255 255 / 0.14) 0 1px, transparent 1px 3px)';
+
 export default function InteractivePortrait() {
   const { animationsEnabled } = useUI();
 
@@ -272,85 +296,108 @@ export default function InteractivePortrait() {
   const displayedTilt = animationsEnabled ? tilt : 0;
 
   return (
-    <div
-      className="relative inline-block h-32 w-32 sm:h-48 sm:w-48 lg:h-96 lg:w-96 mb-4"
-      style={{
-        perspective: '1000px',
-        touchAction: animationsEnabled ? 'none' : 'auto',
-        cursor: animationsEnabled ? (isDragging ? 'grabbing' : 'grab') : 'default',
-      }}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerUp}
-      onKeyDown={handleKeyDown}
-      onDragStart={(event) => event.preventDefault()}
-      role={animationsEnabled ? 'button' : undefined}
-      tabIndex={animationsEnabled ? 0 : undefined}
-      aria-label={
-        animationsEnabled
-          ? 'Interactive portrait. Drag horizontally to rotate.'
-          : 'Portrait of Gabriel Santos'
-      }
-    >
+    <div className="relative inline-flex flex-col items-center">
+      {/* Spectrum halo */}
       <div
-        ref={portraitRef}
-        className="relative h-full w-full"
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 left-1/2 h-[130%] w-[130%] -translate-x-1/2 -translate-y-[56%] rounded-full opacity-60 blur-3xl dark:opacity-50"
         style={{
-          transformStyle: 'preserve-3d',
-          transform: `rotateX(${displayedTilt}deg) rotateY(${displayedRotation}deg)`,
-          transition:
-            animationsEnabled && !isDragging && !isSpinning
-              ? 'transform 250ms cubic-bezier(0.22, 1, 0.36, 1)'
-              : 'none',
+          background:
+            'conic-gradient(from 180deg, rgb(236 72 153 / 0.45), rgb(99 102 241 / 0.5), rgb(0 183 255 / 0.4), rgb(16 185 129 / 0.45), rgb(236 72 153 / 0.45))',
         }}
+      />
+      <div
+        className="relative inline-block h-44 w-44 sm:h-56 sm:w-56 lg:h-80 lg:w-80 xl:h-96 xl:w-96"
+        style={{
+          perspective: '1000px',
+          touchAction: animationsEnabled ? 'none' : 'auto',
+          cursor: animationsEnabled ? (isDragging ? 'grabbing' : 'grab') : 'default',
+        }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        onKeyDown={handleKeyDown}
+        onDragStart={(event) => event.preventDefault()}
+        role={animationsEnabled ? 'button' : undefined}
+        tabIndex={animationsEnabled ? 0 : undefined}
+        aria-label={
+          animationsEnabled
+            ? 'Interactive portrait. Drag horizontally to rotate.'
+            : 'Portrait of Gabriel Santos'
+        }
       >
-        {/* Coin thickness */}
-        {Array.from({ length: 6 }).map((_, index) => (
+        <div
+          ref={portraitRef}
+          className="relative h-full w-full"
+          style={{
+            transformStyle: 'preserve-3d',
+            transform: `rotateX(${displayedTilt}deg) rotateY(${displayedRotation}deg)`,
+            transition:
+              animationsEnabled && !isDragging && !isSpinning
+                ? 'transform 250ms cubic-bezier(0.22, 1, 0.36, 1)'
+                : 'none',
+          }}
+        >
+          {/* Rim */}
+          {RIM.map(({ angle, color }) => (
+            <div
+              key={angle}
+              className="absolute inset-0"
+              style={{ transform: `rotateZ(${angle}deg)`, transformStyle: 'preserve-3d' }}
+            >
+              <div
+                className="absolute top-0 left-1/2"
+                style={{
+                  width: RIM_WIDTH,
+                  height: THICKNESS,
+                  transform: 'translateX(-50%) rotateX(90deg)',
+                  transformOrigin: 'top center',
+                  background: `${RIM_REEDING}, ${color}`,
+                }}
+              />
+            </div>
+          ))}
+
+          {/* Front. The gradient and glow live on the faces themselves rather than on separate
+              layers inside the coin, which Safari would sometimes depth-sort in front of the photo */}
           <div
-            key={index}
-            className={`absolute inset-0 overflow-hidden rounded-full bg-linear-to-br from-pink-400 via-indigo-400 to-emerald-400 ${index === 2 || index === 3 ? 'animate-border' : ''}`}
+            className="animate-border absolute inset-0 overflow-hidden rounded-full border-4 border-white/20 bg-linear-to-br from-pink-400 via-indigo-400 to-emerald-400"
             style={{
-              transform: `translateZ(${index}px)`,
+              transform: `translateZ(${THICKNESS}px)`,
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
             }}
-          />
-        ))}
+          >
+            <Image
+              src="/headshot.jpg"
+              alt="Gabriel Santos"
+              fill
+              draggable={false}
+              priority
+              sizes="(max-width: 640px) 176px, (max-width: 1024px) 224px, (max-width: 1280px) 320px, 384px"
+              className="pointer-events-none select-none object-cover will-change-transform"
+            />
+          </div>
 
-        {/* Front */}
-        <div
-          className="absolute inset-0 overflow-hidden rounded-full border-4 border-white/20"
-          style={{
-            transform: 'translateZ(6px)',
-            backfaceVisibility: 'hidden',
-          }}
-        >
-          <Image
-            src="/headshot.jpg"
-            alt="Gabriel Santos"
-            fill
-            draggable={false}
-            priority
-            sizes="(max-width: 640px) 128px, (max-width: 1024px) 192px, 384px"
-            className="pointer-events-none select-none object-cover"
-          />
-        </div>
-
-        {/* Back */}
-        <div
-          className="absolute inset-0 overflow-hidden rounded-full border-4 border-white/20"
-          style={{
-            transform: 'rotateY(180deg)',
-            backfaceVisibility: 'hidden',
-          }}
-        >
-          <Image
-            src="/headshot.jpg"
-            alt=""
-            fill
-            draggable={false}
-            sizes="(max-width: 640px) 128px, (max-width: 1024px) 192px, 384px"
-            className="pointer-events-none select-none object-cover"
-          />
+          {/* Back */}
+          <div
+            className="animate-border absolute inset-0 overflow-hidden rounded-full border-4 border-white/20 bg-linear-to-br from-pink-400 via-indigo-400 to-emerald-400"
+            style={{
+              transform: 'rotateY(180deg)',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+            }}
+          >
+            <Image
+              src="/headshot.jpg"
+              alt=""
+              fill
+              draggable={false}
+              sizes="(max-width: 640px) 176px, (max-width: 1024px) 224px, (max-width: 1280px) 320px, 384px"
+              className="pointer-events-none select-none object-cover will-change-transform"
+            />
+          </div>
         </div>
       </div>
     </div>

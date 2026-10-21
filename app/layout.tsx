@@ -1,21 +1,34 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { cookies } from 'next/headers';
-import { Figtree, Space_Grotesk } from 'next/font/google';
+import { Figtree, JetBrains_Mono, Space_Grotesk } from 'next/font/google';
 import SiteTelemetry from '@components/site-telemetry';
 import UIProvider from '@components/ui-provider';
 import '@/globals.css';
 
 const figtree = Figtree({
   subsets: ['latin'],
-  variable: '--font-body',
+  variable: '--font-figtree',
 });
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
-  variable: '--font-heading',
+  variable: '--font-space-grotesk',
 });
 
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains',
+});
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f1f3f2' },
+    { media: '(prefers-color-scheme: dark)', color: '#07080c' },
+  ],
+};
+
 export const metadata: Metadata = {
+  metadataBase: new URL('https://gabesantos.ca'),
   title: 'Gabriel Santos',
   description:
     'Software engineer specialized in developing and maintaining full-stack web applications with modern technologies. Explore projects, skills, and solutions.',
@@ -43,6 +56,13 @@ export const metadata: Metadata = {
       },
     ],
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Gabriel Santos',
+    description:
+      'Software engineer specialized in developing and maintaining full-stack web applications with modern technologies. Explore projects, skills, and solutions.',
+    images: ['/og-image.png'],
+  },
   robots: {
     index: true,
     follow: true,
@@ -61,9 +81,13 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const animationDisabled = cookieStore.get('animation')?.value === 'false';
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${figtree.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
+    >
       <head />
-      <body className={`${figtree.variable} ${spaceGrotesk.variable} antialiased`}>
+      <body className="antialiased">
         <UIProvider animationDisabled={animationDisabled}>{children}</UIProvider>
         <SiteTelemetry />
       </body>

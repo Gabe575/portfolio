@@ -23,21 +23,24 @@ export default async function AdminDetailPage({ params }: { params: Promise<{ id
   return (
     <div className="space-y-7">
       <div className="flex items-center justify-between gap-3">
-        <Link href="/meet/admin" className="scheduler-muted hover:underline">
+        <Link href="/meet/admin" className="scheduler-button">
           ← All requests
         </Link>
         <form action={logoutAdmin}>
           <button className="scheduler-button">Log out</button>
         </form>
       </div>
-      <h1 className="section-title break-words">{request.title}</h1>
-      <div className="scheduler-card space-y-5">
+      <div className="space-y-4">
+        <p className="scheduler-label">Request</p>
+        <h1 className="scheduler-title break-words">{request.title}</h1>
+      </div>
+      <div className="scheduler-card space-y-6">
         <span
           className={`scheduler-status ${request.status === 'submitted' ? 'scheduler-status-received' : ''}`}
         >
           {request.status === 'submitted' ? 'Availability received' : 'Awaiting availability'}
         </span>
-        <dl className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
+        <dl className="grid gap-x-6 gap-y-5 text-sm sm:grid-cols-2 lg:grid-cols-4 [&_dt]:mb-1.5 [&_dt]:font-mono [&_dt]:text-[11px] [&_dt]:tracking-[0.15em] [&_dt]:text-faint [&_dt]:uppercase">
           <div>
             <dt className="scheduler-muted">Created</dt>
             <dd>{format(request.createdAt)}</dd>
@@ -80,7 +83,7 @@ export default async function AdminDetailPage({ params }: { params: Promise<{ id
             </>
           )}
         </dl>
-        <div className="flex flex-wrap items-start gap-3">
+        <div className="flex flex-wrap items-start gap-2 border-t border-line pt-5">
           <CopyRecipientLink slug={request.slug} />
           <DeleteRequestButton id={request.id} title={request.title} />
         </div>

@@ -42,37 +42,40 @@ export default function AdminViewer({ request }: { request: AvailabilityRequest 
 
   return (
     <div className="scheduler-card space-y-5">
-      <div className="flex flex-wrap gap-2" aria-label="Displayed week">
-        {(['this_week', 'next_week'] as Week[]).map((value) => (
-          <button
-            key={value}
-            type="button"
-            className={`scheduler-button ${week === value ? 'scheduler-choice-active' : ''}`}
-            aria-pressed={week === value}
-            onClick={() => setWeek(value)}
-          >
-            {scopeLabels[value]}
-          </button>
-        ))}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="scheduler-label">Responses</p>
+        <div className="scheduler-segment" aria-label="Displayed week">
+          {(['this_week', 'next_week'] as Week[]).map((value) => (
+            <button
+              key={value}
+              type="button"
+              className="scheduler-tab"
+              aria-pressed={week === value}
+              onClick={() => setWeek(value)}
+            >
+              {scopeLabels[value]}
+            </button>
+          ))}
+        </div>
       </div>
       {!request.response ? (
-        <div className="py-10 text-center">
-          <h2 className="text-xl">Awaiting availability</h2>
-          <p className="scheduler-muted mt-3">
+        <div className="rounded-2xl border border-dashed border-line-strong px-6 py-14 text-center">
+          <h2 className="font-display text-2xl tracking-tight">Awaiting availability</h2>
+          <p className="scheduler-muted mx-auto mt-3 max-w-md">
             Copy the availability link and send it to the person you want to meet with. Their
             availability will appear here after submission.
           </p>
         </div>
       ) : !provided(request.response.scope, week) ? (
-        <div className="py-10 text-center">
-          <h2 className="text-xl">This week was not provided</h2>
-          <p className="scheduler-muted mt-3">
+        <div className="rounded-2xl border border-dashed border-line-strong px-6 py-14 text-center">
+          <h2 className="font-display text-2xl tracking-tight">This week was not provided</h2>
+          <p className="scheduler-muted mx-auto mt-3 max-w-md">
             This does not necessarily mean that they&apos;re unavailable during this week.
           </p>
         </div>
       ) : (
         <>
-          <h2 className="text-xl">
+          <h2 className="font-display text-xl font-semibold tracking-tight">
             {scopeLabels[week]} · {dateLabel(display.dates[0])} -{' '}
             {dateLabel(display.dates[display.dates.length - 1])}
           </h2>

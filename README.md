@@ -22,9 +22,12 @@ Live demo: https://gabesantos.ca
 
 ## Features
 
-- Sticky navbar that hides on scroll
+- Sticky navbar that hides on scroll, with scroll-spy and reading progress
+- Command palette (⌘/Ctrl + K) for navigation, projects, theme and motion settings
 - Dark/light theme toggle (next‑themes)
 - Contact form with server‑side validation, rate limiting, and spam honeypot
 - Scrolling language/framework marquee animations
 - Fully responsive layout
-- 3D particle title animation rendered with Three.js/React‑three‑fiber
+- 3D particle title animation rendered with Three.js/React‑three‑fiber, with mouse parallax
+- Project cards that fly out and flip into full case studies
+- Motion toggle for low-end devices that respects `prefers-reduced-motion`

@@ -15,21 +15,27 @@ export default function ModeToggle({
   useEffect(() => setMounted(true), []);
 
   // Don't render until theme is resolved
-  if (!mounted || !resolvedTheme) return null;
+  if (!mounted || !resolvedTheme) return <span className={className} aria-hidden />;
 
   const handleToggle = () => {
     setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
   };
 
   return (
-    <button onClick={handleToggle} className={className}>
+    <button
+      type="button"
+      onClick={handleToggle}
+      className={className}
+      aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} theme`}
+      title="Toggle theme"
+    >
       <FiSun
-        className={`h-5 w-5 transition-transform ${
+        className={`h-4 w-4 transition-transform duration-500 ${
           resolvedTheme === 'dark' ? 'scale-100 rotate-0' : 'scale-0 rotate-90'
         }`}
       />
       <FiMoon
-        className={`absolute h-5 w-5 transition-transform ${
+        className={`absolute h-4 w-4 transition-transform duration-500 ${
           resolvedTheme === 'dark' ? 'scale-0 rotate-90' : 'scale-100 rotate-0'
         }`}
       />

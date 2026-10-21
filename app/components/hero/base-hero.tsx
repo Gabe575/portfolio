@@ -44,9 +44,10 @@ const DOT_COLORS = {
   green: 'rgba(0, 255, 150, 0.55)',
 };
 
-function StaticHero({ children }: { children?: React.ReactNode }) {
+function StaticHero({ children, still }: { children?: React.ReactNode; still?: boolean }) {
   return (
-    <div className="relative isolate flex h-full w-full items-center justify-center overflow-hidden">
+    // Padding by the toolbar difference centers the text in the smallest viewport (toolbars shown)
+    <div className="relative isolate flex h-full w-full items-center justify-center overflow-hidden pb-[calc(100vh+var(--hero-overhang)-100svh)]">
       {/* Ambient center glow */}
       <div
         aria-hidden
@@ -74,6 +75,7 @@ function StaticHero({ children }: { children?: React.ReactNode }) {
               }`,
               animationDelay: `${dot.delay}s`,
               animationDuration: `${dot.duration}s`,
+              animationPlayState: still ? 'paused' : 'running',
             }}
           />
         ))}
@@ -165,18 +167,36 @@ function AnimatedHeroWrapper({ animationsEnabled }: { animationsEnabled: boolean
   const [showAnimatedHero, setShowAnimatedHero] = useState(false);
 
   useEffect(() => {
-    if (!animationsEnabled) return;
+    if (!animationsEnabled) {
+      // Bring the static title back so it's ready to hand off again if motion is re-enabled.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setStaticExiting(false);
+      return;
+    }
 
-    const timeout = setTimeout(() => {
-      setShowAnimatedHero(true);
-    }, 250); // Delay so the exit animation doesn't play immediately on fast devices
+    // Fetch the WebGL hero only once the page has loaded and the main thread is idle, so
+    // three.js (the largest chunk) never competes with first paint or hydration.
+    // The static hero is already complete, so this just hands off a moment later.
+    let idle: number | undefined;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const start = () => {
+      const show = () => setShowAnimatedHero(true);
+      if ('requestIdleCallback' in window) idle = requestIdleCallback(show, { timeout: 2000 });
+      else timeout = setTimeout(show, 250);
+    };
+    if (document.readyState === 'complete') start();
+    else window.addEventListener('load', start, { once: true });
 
-    return () => clearTimeout(timeout);
+    return () => {
+      window.removeEventListener('load', start);
+      if (idle !== undefined) cancelIdleCallback(idle);
+      clearTimeout(timeout);
+    };
   }, [animationsEnabled]);
 
   return (
     <div className="relative h-full w-full overflow-hidden">
-      <StaticHero>
+      <StaticHero still={!animationsEnabled}>
         <HeroText exiting={animationsEnabled && staticExiting} />
       </StaticHero>
 

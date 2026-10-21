@@ -110,7 +110,7 @@ export default function TimezoneSelect({
         }
       }}
     >
-      <span id={`${id}-label`} className="block text-sm font-semibold">
+      <span id={`${id}-label`} className="scheduler-label">
         Times shown in
       </span>
       <input type="hidden" name={name} value={value} />
@@ -136,14 +136,17 @@ export default function TimezoneSelect({
             {selected.description} · {value}
           </span>
         </span>
-        <span aria-hidden="true" className="shrink-0">
-          {open ? '▴' : '▾'}
+        <span
+          aria-hidden="true"
+          className={`shrink-0 text-faint transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
+        >
+          ▾
         </span>
       </button>
       {open && !disabled && (
         <div id={`${id}-choices`} className="timezone-choices space-y-3">
           <label className="block space-y-1">
-            <span className="text-sm font-semibold">Find your timezone</span>
+            <span className="scheduler-label">Find your timezone</span>
             <input
               ref={search}
               type="search"

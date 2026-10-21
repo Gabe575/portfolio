@@ -7,113 +7,192 @@ import { FontLoader, Font } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js';
 
+// Glow bands sweep up through the name. With bands spaced waveHeight / bandCount apart and
+// narrower than that spacing, at most one band touches a particle, so the per-band loop
+// collapses to a single mod. The sweep phase is wrapped on the CPU to keep float precision.
+const WAVE_HEIGHT = 11;
+const WAVE_SPEED = 0.07;
+const BAND_COUNT = 3;
+const BAND_WIDTH = 3.5;
+const GLOW_STRENGTH = 3;
+
 const vertexShader = `
   uniform float time;
   uniform float progress;
   uniform float direction;
   uniform float width;
   uniform float height;
+  uniform float glowPhase;
 
   attribute float size;
   attribute float baseAngle;
   attribute float radius;
   attribute float speed;
+  // Click-blast displacement, simulated on the CPU
+  attribute vec3 offset;
 
   varying vec3 vColor;
-  varying float vParticleY;
 
   void main() {
-    // Pass values to fragment shader
-    vColor = color;
-    vParticleY = position.y;
-    
-    // Update position based on animation progress
-    float cx = position.x * (1.0 - progress); 
-    float cy = position.y + direction * height * progress;
-    float cz = position.z * (1.0 - progress); 
+    // Glow is constant across a point, so it's computed here instead of per pixel
+    float dist = mod(position.y + glowPhase, BAND_SPACING) / BAND_WIDTH;
+    float fade = (dist - 0.05) / 0.95;
+    float glow = dist <= 1.0 ? min((1.0 - fade) * (1.0 - fade), 1.0) : 0.0;
+    vColor = color * (0.5 + glow * GLOW_STRENGTH);
 
-    float angle = baseAngle - speed * time * progress;
-    float circleX = cos(angle) * radius * width * progress;
-    float circleY = sin(angle) * radius * width * progress;
+    vec3 p = position + offset;
 
-    float tilt = 3.14159265359 / 2.1;
-    float rotatedY = cy + circleY * cos(tilt);
-    float rotatedZ = cz + circleY * sin(tilt);
-    vec3 finalPosition = vec3(cx + circleX, rotatedY, rotatedZ);
+    // Scroll scatter; progress is a uniform so this branch is free when it's 0
+    if (progress > 0.0) {
+      float angle = baseAngle - speed * time * progress;
+      float circleX = cos(angle) * radius * width * progress;
+      float circleY = sin(angle) * radius * width * progress;
+
+      const float tilt = 3.14159265359 / 2.1;
+      p = vec3(
+        p.x * (1.0 - progress) + circleX,
+        p.y + direction * height * progress + circleY * cos(tilt),
+        p.z * (1.0 - progress) + circleY * sin(tilt)
+      );
+    }
 
     // Slight wave effect
-    finalPosition.z += sin(time + finalPosition.x * 3.0) * 0.1 * (1.0 - progress);
-    
+    p.z += sin(time + p.x * 3.0) * 0.1 * (1.0 - progress);
+
     gl_PointSize = size;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(finalPosition, 1.0);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
   }
 `;
 
 const fragmentShader = `
-  uniform float time;
-  uniform float waveHeight;
-  uniform float waveSpeed;
-  uniform float bandWidth;
-  uniform float bandCount;
-  uniform float glowStrength;
-  uniform float loadProgress;
+  uniform float opacity;
 
   varying vec3 vColor;
-  varying float vParticleY;
-  
+
   void main() {
-    vec4 color = vec4(vColor, 1.0);
-    color.a = loadProgress * loadProgress;
-
-    float glow = 0.0;
-    float bandOffset, dist, bandGlow;
-
-    for (int b = 0; b < int(bandCount); b++) {
-      bandOffset = (float(b) / bandCount) * waveHeight;
-      float raw = vParticleY - bandOffset + time * waveSpeed * waveHeight;
-      float wrapped = mod(raw, waveHeight);
-      if (wrapped < 0.0) {
-        wrapped += waveHeight;
-      }
-      dist = wrapped / bandWidth;
-
-      if (dist <= 1.0) {
-        float fadeDist = (dist - 0.05) / (1.0 - 0.05);
-        bandGlow = (1.0 - fadeDist) * (1.0 - fadeDist);
-      } else {
-        bandGlow = 0.0;
-      }
-      glow += bandGlow;
-    }
-    glow = min(glow, 1.0);
-
-    color.rgb *= (0.5 + glow * glowStrength);
-    gl_FragColor = color;
+    gl_FragColor = vec4(vColor, opacity);
   }
 `;
 
+// Uniforms both names share; each material spreads these in, so one write updates both
+const createSharedUniforms = () => ({
+  time: { value: 0 },
+  progress: { value: 0 },
+  opacity: { value: 0 },
+  glowPhase: { value: 0 },
+  width: { value: 0 },
+  height: { value: window.innerHeight },
+});
+type SharedUniforms = ReturnType<typeof createSharedUniforms>;
+
 interface ShaderPoints extends THREE.Points {
-  material: THREE.ShaderMaterial & {
-    uniforms?: {
-      time: { value: number };
-      progress: { value: number };
-      loadProgress: { value: number };
-      direction: { value: number };
-      width: { value: number };
-      height: { value: number };
-      waveHeight: { value: number };
-      waveSpeed: { value: number };
-      bandCount: { value: number };
-      bandWidth: { value: number };
-      glowStrength: { value: number };
-    };
+  material: THREE.ShaderMaterial;
+  userData: {
+    origPositions: Float32Array;
+    velocities: Float32Array;
+    // Indices of particles still moving, so settled ones cost nothing
+    active: Int32Array;
+    activeCount: number;
+    isActive: Uint8Array;
   };
 }
+
+// Click blasts: each click adds a velocity kick to nearby particles, and an overdamped
+// spring pulls them home. The spring is tuned so a single blast follows
+// e^(-1.2t) - e^(-14t): out in ~0.2s, then a slow drift back.
+const BLAST_RADIUS = 3;
+const BLAST_STRENGTH = 16;
+const SPRING = 1.2 * 14;
+const DAMPING = 1.2 + 14;
+const IMPULSE = 14 - 1.2;
+const SIM_STEP = 1 / 120;
+const REST = 1e-2;
+
+const smoothstep = (e0: number, e1: number, x: number) => {
+  const t = Math.min(Math.max((x - e0) / (e1 - e0), 0), 1);
+  return t * t * (3 - 2 * t);
+};
+
+const blast = (sys: ShaderPoints, hx: number, hy: number) => {
+  const { origPositions: orig, velocities: vel, active, isActive } = sys.userData;
+  const offset = sys.geometry.getAttribute('offset').array as Float32Array;
+  const radii = sys.geometry.getAttribute('radius').array as Float32Array;
+  const speeds = sys.geometry.getAttribute('speed').array as Float32Array;
+  // Lobed outline that changes with every click, so no blast is a clean circle
+  const seed = Math.random() * 100;
+  // Largest possible edge: max lobes (1.62) * max per-particle scale (1.3)
+  const reach = BLAST_RADIUS * 2.1;
+
+  for (let i = 0; i < radii.length; i++) {
+    const dx = orig[i * 3] + offset[i * 3] - hx;
+    const dy = orig[i * 3 + 1] + offset[i * 3 + 1] - hy;
+    if (Math.abs(dx) > reach || Math.abs(dy) > reach) continue;
+
+    const ang = Math.atan2(dy, dx);
+    const lobes =
+      1 +
+      0.3 * Math.sin(ang * 3 + seed) +
+      0.2 * Math.sin(ang * 5 - seed * 1.7) +
+      0.12 * Math.sin(ang * 9 + seed * 2.3);
+    const edge = BLAST_RADIUS * lobes * (0.7 + 0.6 * Math.random());
+    const falloff = 1 - smoothstep(0, edge, Math.hypot(dx, dy));
+    if (falloff <= 0) continue;
+
+    const jx = dx + (Math.random() - 0.5) * 0.8;
+    const jy = dy + (Math.random() - 0.5) * 0.8;
+    const jz = (radii[i] - 0.65) * 2;
+    const len = Math.hypot(jx, jy, jz) || 1;
+    const kick =
+      (falloff * BLAST_STRENGTH * speeds[i] * (0.4 + 1.2 * Math.random()) * IMPULSE) / len;
+    vel[i * 3] += jx * kick;
+    vel[i * 3 + 1] += jy * kick;
+    vel[i * 3 + 2] += jz * kick;
+    if (!isActive[i]) {
+      isActive[i] = 1;
+      active[sys.userData.activeCount++] = i;
+    }
+  }
+};
+
+// Advances the spring for moving particles only; no upload once everything has settled
+const stepBlast = (sys: ShaderPoints, dt: number) => {
+  const data = sys.userData;
+  if (data.activeCount === 0) return;
+  const { velocities: vel, active, isActive } = data;
+  const attr = sys.geometry.getAttribute('offset') as THREE.BufferAttribute;
+  const offset = attr.array as Float32Array;
+  const steps = Math.ceil(dt / SIM_STEP);
+  const h = dt / steps;
+
+  for (let k = 0; k < data.activeCount; k++) {
+    const i = active[k];
+    let motion = 0;
+    for (let c = i * 3; c < i * 3 + 3; c++) {
+      let x = offset[c];
+      let v = vel[c];
+      for (let s = 0; s < steps; s++) {
+        v += (-SPRING * x - DAMPING * v) * h;
+        x += v * h;
+      }
+      offset[c] = x;
+      vel[c] = v;
+      motion = Math.max(motion, Math.abs(x), Math.abs(v));
+    }
+    if (motion < REST) {
+      offset.fill(0, i * 3, i * 3 + 3);
+      vel.fill(0, i * 3, i * 3 + 3);
+      isActive[i] = 0;
+      active[k--] = active[--data.activeCount];
+    }
+  }
+  attr.needsUpdate = true;
+};
 
 const generateParticleText = (
   text: string,
   font: Font,
   palette: THREE.Color[],
+  shared: SharedUniforms,
   particleCount = 4000,
   positionY = 0,
   centerOffset = 0,
@@ -174,20 +253,22 @@ const generateParticleText = (
   geom.setAttribute('baseAngle', new THREE.Float32BufferAttribute(baseAngles, 1));
   geom.setAttribute('radius', new THREE.Float32BufferAttribute(radii, 1));
   geom.setAttribute('speed', new THREE.Float32BufferAttribute(speeds, 1));
+  geom.setAttribute(
+    'offset',
+    new THREE.Float32BufferAttribute(new Float32Array(particleCount * 3), 3).setUsage(
+      THREE.DynamicDrawUsage,
+    ),
+  );
 
   const mat = new THREE.ShaderMaterial({
     uniforms: {
-      time: { value: 0 },
-      progress: { value: 0 },
-      loadProgress: { value: 0 },
+      ...shared,
       direction: { value: positionY > 0 ? 1 : -1 },
-      width: { value: 0 },
-      height: { value: window.innerHeight },
-      waveHeight: { value: 11 },
-      waveSpeed: { value: 0.07 },
-      bandCount: { value: 3 },
-      bandWidth: { value: 3.5 },
-      glowStrength: { value: 3 },
+    },
+    defines: {
+      BAND_SPACING: (WAVE_HEIGHT / BAND_COUNT).toFixed(4),
+      BAND_WIDTH: BAND_WIDTH.toFixed(4),
+      GLOW_STRENGTH: GLOW_STRENGTH.toFixed(4),
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader,
@@ -195,21 +276,71 @@ const generateParticleText = (
     transparent: true,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
+    depthTest: false,
   });
 
   const particleSystem = new THREE.Points(geom, mat);
-  particleSystem.userData = { origPositions: sampledPositions.slice() };
+  particleSystem.userData = {
+    origPositions: sampledPositions.slice(),
+    velocities: new Float32Array(particleCount * 3),
+    active: new Int32Array(particleCount),
+    activeCount: 0,
+    isActive: new Uint8Array(particleCount),
+  };
   return particleSystem as ShaderPoints;
 };
 
 function Particles({ onReady }: { onReady?: () => void }) {
-  const { scene, camera, invalidate } = useThree();
+  const { scene, camera, gl, advance } = useThree();
+  const shared = useRef<SharedUniforms | null>(null);
   const firstNameRef = useRef<ShaderPoints | null>(null);
   const lastNameRef = useRef<ShaderPoints | null>(null);
   const scrollProgress = useRef(0);
   const loadProgress = useRef(0);
   const [particleSystem, setParticleSystem] = useState<ShaderPoints[] | null>();
   const targetZ = useRef<number>(30);
+  const pointer = useRef({ x: 0, y: 0 });
+  const time = useRef(0);
+  // Seconds since the last rendered frame, measured by our own loop (see the tick below)
+  const frameDelta = useRef(0);
+
+  // Subtle camera parallax that follows the mouse
+  useEffect(() => {
+    const onPointerMove = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return;
+      pointer.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      pointer.current.y = -((e.clientY / window.innerHeight) * 2 - 1);
+    };
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    return () => window.removeEventListener('pointermove', onPointerMove);
+  }, []);
+
+  // Click the name to blast a hole in it. Listens on window because the page content
+  // stacks above the sticky hero canvas, so the canvas itself never receives the click.
+  useEffect(() => {
+    const raycaster = new THREE.Raycaster();
+    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+    const hit = new THREE.Vector3();
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (e.button !== 0 || scrollProgress.current > 0.3) return;
+      const target = e.target as Element | null;
+      if (target?.closest('main, nav, a, button, input, textarea, select, label, [role="dialog"]'))
+        return;
+      const bounds = gl.domElement.getBoundingClientRect();
+      const ndc = new THREE.Vector2(
+        ((e.clientX - bounds.left) / bounds.width) * 2 - 1,
+        -((e.clientY - bounds.top) / bounds.height) * 2 + 1,
+      );
+      if (Math.abs(ndc.x) > 1 || Math.abs(ndc.y) > 1) return;
+
+      raycaster.setFromCamera(ndc, camera);
+      if (!raycaster.ray.intersectPlane(plane, hit)) return;
+      [firstNameRef.current, lastNameRef.current].forEach((sys) => sys && blast(sys, hit.x, hit.y));
+    };
+    window.addEventListener('pointerdown', onPointerDown);
+    return () => window.removeEventListener('pointerdown', onPointerDown);
+  }, [camera, gl]);
 
   useEffect(() => {
     const loader = new FontLoader();
@@ -231,8 +362,24 @@ function Particles({ onReady }: { onReady?: () => void }) {
         new THREE.Color(0x00bbcc),
       ];
       const count = window.innerWidth < 768 ? 2500 : 4000;
-      firstNameRef.current = generateParticleText('Gabriel', font, paletteBlue, count, 3);
-      lastNameRef.current = generateParticleText('Santos', font, paletteGreen, count, -3, -2);
+      shared.current = createSharedUniforms();
+      firstNameRef.current = generateParticleText(
+        'Gabriel',
+        font,
+        paletteBlue,
+        shared.current,
+        count,
+        3,
+      );
+      lastNameRef.current = generateParticleText(
+        'Santos',
+        font,
+        paletteGreen,
+        shared.current,
+        count,
+        -3,
+        -2,
+      );
       setParticleSystem([firstNameRef.current, lastNameRef.current]);
     });
 
@@ -250,29 +397,27 @@ function Particles({ onReady }: { onReady?: () => void }) {
 
   useEffect(() => {
     if (!particleSystem) return;
+    // The page content slides up over the hero; stop rendering once it fully covers it,
+    // with margin for its rounded top corners
+    const sheet = document.querySelector('main');
+    let covered = false;
     const onScroll = () => {
       const triggerHeight = window.innerHeight / 2;
-      const progress = Math.min(Math.max(window.scrollY / triggerHeight, 0), 2);
-
-      if (scrollProgress.current === 2 && progress < 2) invalidate();
-      scrollProgress.current = progress;
+      scrollProgress.current = Math.min(Math.max(window.scrollY / triggerHeight, 0), 2);
+      covered = !!sheet && sheet.getBoundingClientRect().top <= -64;
     };
-    window.addEventListener('scroll', onScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
 
     let resizeTimeout: NodeJS.Timeout;
     const adjustCamera = () => {
       if (resizeTimeout) clearTimeout(resizeTimeout);
 
       resizeTimeout = setTimeout(() => {
-        if (!firstNameRef.current || !lastNameRef.current) return;
+        if (!firstNameRef.current || !shared.current) return;
 
         const cam = camera as THREE.PerspectiveCamera;
-        const box = new THREE.Box3();
-        const pos = firstNameRef.current.userData.origPositions as Float32Array;
-        for (let i = 0; i < pos.length; i += 3) {
-          box.expandByPoint(new THREE.Vector3(pos[i], pos[i + 1], pos[i + 2]));
-        }
-
+        const box = new THREE.Box3().setFromArray(firstNameRef.current.userData.origPositions);
         const size = new THREE.Vector3();
         box.getSize(size);
 
@@ -281,32 +426,44 @@ function Particles({ onReady }: { onReady?: () => void }) {
           size.y / (2 * Math.tan(halfFov)),
           size.x / cam.aspect / (2 * Math.tan(halfFov)),
         );
-        if (firstNameRef.current && lastNameRef.current) {
-          [firstNameRef.current, lastNameRef.current].forEach((sys) => {
-            sys.material.uniforms.width.value = Math.max(50 * cam.aspect, 100);
-            sys.material.uniforms.height.value = Math.max(20 / cam.aspect, 30);
-          });
-        }
+        shared.current.width.value = Math.max(50 * cam.aspect, 100);
+        shared.current.height.value = Math.max(20 / cam.aspect, 30);
         targetZ.current = Math.max(requiredZ + 5, 20);
+
+        // The canvas fills 100vh, which on mobile runs behind the browser toolbars. Shift the
+        // view so the name centers in the smallest viewport (toolbars shown) instead.
+        const probe = document.createElement('div');
+        probe.style.cssText = 'position:fixed;top:0;height:100svh;visibility:hidden';
+        document.body.appendChild(probe);
+        const visibleHeight = probe.offsetHeight;
+        probe.remove();
+
+        const { width, height } = gl.domElement.getBoundingClientRect();
+        const shift = (height - visibleHeight) / 2;
+        if (shift > 0.5) cam.setViewOffset(width, height, 0, shift, width, height);
+        else cam.clearViewOffset();
       }, 200);
     };
     window.addEventListener('resize', adjustCamera);
     adjustCamera();
 
-    const start = performance.now();
-    const duration = 2000;
-
-    const animate = (time: number) => {
-      const elapsed = time - start;
-      const p = Math.min(elapsed / duration, 1);
-      loadProgress.current = p;
-      if (p < 1) {
-        requestAnimationFrame(animate);
-      }
+    // Drive rendering ourselves (frameloop="never") at the display's refresh rate, fully
+    // idle once the hero is scrolled away.
+    let raf = 0;
+    let lastRender = performance.now();
+    const tick = (now: number) => {
+      raf = requestAnimationFrame(tick);
+      if (covered) return;
+      // R3F's own delta is unreliable with frameloop="never" (THREE.Clock auto-restarts)
+      frameDelta.current = (now - lastRender) / 1000;
+      lastRender = now;
+      advance(now / 1000);
     };
-    requestAnimationFrame(animate);
+    raf = requestAnimationFrame(tick);
 
     return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(resizeTimeout);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', adjustCamera);
     };
@@ -322,31 +479,37 @@ function Particles({ onReady }: { onReady?: () => void }) {
     onReady?.();
   }, [particleSystem, onReady]);
 
-  useFrame((state) => {
-    if (
-      !particleSystem ||
-      scrollProgress.current >= 2 ||
-      !firstNameRef.current ||
-      !lastNameRef.current
-    )
-      return;
+  useFrame(() => {
+    const u = shared.current;
+    if (!u || !firstNameRef.current || !lastNameRef.current) return;
 
-    const t = state.clock.getElapsedTime();
+    // Clamp so a long pause (hidden tab) doesn't fire one giant step
+    const dt = Math.min(frameDelta.current, 1 / 30);
+    time.current += dt;
+    loadProgress.current = Math.min(loadProgress.current + dt / 2, 1);
+
     const targetProgress = Math.min(Math.max(1 - loadProgress.current, scrollProgress.current), 1);
     const easedProgress =
       targetProgress < 0.5
         ? Math.pow(targetProgress * 2, 5) / 2
         : 1 - Math.pow((1 - targetProgress) * 2, 2) / 2;
 
-    [firstNameRef.current, lastNameRef.current].forEach((sys) => {
-      sys.material.uniforms.time.value = t;
-      sys.material.uniforms.progress.value = easedProgress;
-      sys.material.uniforms.loadProgress.value = loadProgress.current;
-    });
+    stepBlast(firstNameRef.current, dt);
+    stepBlast(lastNameRef.current, dt);
+    u.time.value = time.current;
+    u.progress.value = easedProgress;
+    u.opacity.value = loadProgress.current * loadProgress.current;
+    u.glowPhase.value = (time.current * WAVE_SPEED * WAVE_HEIGHT) % WAVE_HEIGHT;
 
-    const newZ = camera.position.z + (targetZ.current - camera.position.z) * 0.1;
-    camera.position.set(camera.position.x, camera.position.y, newZ);
-    invalidate();
+    // Frame-rate independent easing, tuned to feel like the old per-frame 0.1 / 0.04 at 120Hz
+    const zEase = 1 - Math.pow(0.9, dt * 120);
+    const xyEase = 1 - Math.pow(0.96, dt * 120);
+    camera.position.set(
+      camera.position.x + (pointer.current.x * 2.5 - camera.position.x) * xyEase,
+      camera.position.y + (pointer.current.y * 1.5 - camera.position.y) * xyEase,
+      camera.position.z + (targetZ.current - camera.position.z) * zEase,
+    );
+    camera.lookAt(0, 0, 0);
   });
 
   return <>{particleSystem?.map((obj, i) => obj && <primitive key={i} object={obj} />)}</>;
@@ -358,12 +521,17 @@ interface AnimatedHeroProps {
 
 export default function AnimatedHero({ onReady }: AnimatedHeroProps) {
   return (
-    <Canvas camera={{ position: [0, 0, 0], fov: 90 }} frameloop="demand">
-      <ambientLight />
-
+    <Canvas
+      camera={{ position: [0, 0, 0], fov: 90 }}
+      frameloop="never"
+      // The composer's full-screen pass is the only thing drawn to the canvas, so its own
+      // antialiasing, depth and stencil buffers would go unused
+      gl={{ antialias: false, depth: false, stencil: false }}
+    >
       <Particles onReady={onReady} />
 
-      <EffectComposer>
+      {/* Additive points never read depth, so the composer doesn't need a depth buffer */}
+      <EffectComposer depthBuffer={false}>
         <Bloom intensity={0.5} luminanceThreshold={0.5} luminanceSmoothing={0.9} radius={0.4} />
       </EffectComposer>
     </Canvas>

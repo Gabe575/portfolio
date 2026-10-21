@@ -1,8 +1,10 @@
 'use client';
 import { useEffect, useState, useActionState, useRef, startTransition } from 'react';
+import { FiArrowRight, FiCheck } from 'react-icons/fi';
 import { sendEmail } from '@/actions';
 
-const MESSAGE_LIMIT = 3000;
+// Must match the server-side limit in actions.ts
+const MESSAGE_LIMIT = 1000;
 
 export default function ContactForm() {
   const [state, action, isPending] = useActionState(sendEmail, null);
@@ -33,62 +35,116 @@ export default function ContactForm() {
     });
   };
 
+  const overLimit = messageLength > MESSAGE_LIMIT;
+  const usage = Math.min(messageLength / MESSAGE_LIMIT, 1);
+  const error = state?.error && !success ? state.error : '';
+
   return (
-    <div>
-      <form
-        className="space-y-4 max-w-xl"
-        ref={formRef}
-        onInput={handleTyping}
-        onSubmit={handleSubmit}
-      >
-        <input type="hidden" name="formStart" value={formStart ?? ''} />
-        <input
-          name="name"
-          placeholder="Your Name"
-          className="w-full border p-2"
-          maxLength={100}
-          required
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Your Email"
-          className="w-full border p-2"
-          maxLength={150}
-          required
-        />
-        <input type="text" name="company" className="hidden" maxLength={100} />
+    <form
+      className="card space-y-4 p-5 sm:p-8"
+      ref={formRef}
+      onInput={handleTyping}
+      onSubmit={handleSubmit}
+      data-spotlight
+    >
+      <input type="hidden" name="formStart" value={formStart ?? ''} />
+      <div className="relative z-2 grid gap-4 sm:grid-cols-2">
+        <div className="field">
+          <input
+            id="contact-name"
+            name="name"
+            placeholder=" "
+            autoComplete="name"
+            maxLength={100}
+            required
+          />
+          <label htmlFor="contact-name">Your name</label>
+        </div>
+        <div className="field">
+          <input
+            id="contact-email"
+            type="email"
+            name="email"
+            placeholder=" "
+            autoComplete="email"
+            maxLength={150}
+            required
+          />
+          <label htmlFor="contact-email">Your email</label>
+        </div>
+      </div>
+      <input
+        type="text"
+        name="company"
+        className="hidden"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden
+        maxLength={100}
+      />
+      <div className="field relative z-2">
         <textarea
+          id="contact-message"
           name="message"
-          placeholder="Your Message"
-          className="w-full border p-2 mb-0 h-48"
+          placeholder=" "
+          className="h-48 resize-none"
           required
+          aria-describedby="contact-count"
           onChange={(e) => setMessageLength(e.target.value.length)}
         />
-        <div
-          className={`text-sm text-right sm:pb-8 ${messageLength > MESSAGE_LIMIT ? 'text-red-700 dark:text-red-400' : 'text-zinc-600 dark:text-zinc-400'}`}
+        <label htmlFor="contact-message">What&apos;s on your mind?</label>
+      </div>
+      <div className="relative z-2 flex items-center gap-3">
+        <div className="h-px flex-1 overflow-hidden bg-line">
+          <div
+            className={`h-full origin-left transition-transform duration-300 ${overLimit ? 'bg-red-500' : ''}`}
+            style={{
+              transform: `scaleX(${usage})`,
+              background: overLimit ? undefined : 'var(--spectrum)',
+            }}
+          />
+        </div>
+        <span
+          id="contact-count"
+          className={`font-mono text-xs tabular-nums ${overLimit ? 'text-red-700 dark:text-red-400' : 'text-faint'}`}
         >
           {messageLength} / {MESSAGE_LIMIT}
-        </div>
-        <div className="flex flex-col-reverse sm:flex-row items-center gap-8 sm:gap-16">
-          <button
-            type="submit"
-            disabled={isPending || messageLength > MESSAGE_LIMIT}
-            className={`px-4 py-2 min-h-12 whitespace-nowrap border-2 ${success ? 'border-green-400 bg-green-200 dark:bg-green-950 dark:border-green-800' : 'border-slate-400 bg-slate-300 active:bg-slate-400 dark:bg-zinc-700 dark:border-zinc-500 dark:active:bg-zinc-500'} disabled:opacity-50 active:scale-95 rounded`}
-          >
-            {isPending ? (
-              <div className="w-5 h-5 border-2 border-t-transparent border-slate-400 dark:border-zinc-500 dark:border-t-transparent rounded-full animate-spin mx-auto"></div>
-            ) : success ? (
-              'Sent!'
-            ) : (
-              'Send Message'
-            )}
-          </button>
-          <span className="text-red-700 dark:text-red-400">
-            {state?.error && !success ? state.error : ''}
-          </span>
-        </div>
-      </form>
-    </div>
+        </span>
+      </div>
+      <div className="relative z-2 flex flex-col-reverse items-stretch gap-4 pt-2 sm:flex-row sm:items-center sm:gap-6">
+        <button
+          type="submit"
+          disabled={isPending || overLimit}
+          className={`group inline-flex min-h-13 items-center justify-center gap-3 rounded-full px-7 py-3 font-medium whitespace-nowrap transition-all active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50
+            ${success ? 'bg-emerald-600 text-white dark:bg-emerald-500 dark:text-black' : 'bg-ink text-bg hover:shadow-[0_0_0_4px_var(--glow)]'}`}
+        >
+          {isPending ? (
+            <>
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              Sending…
+            </>
+          ) : success ? (
+            <>
+              <FiCheck aria-hidden /> Message sent
+            </>
+          ) : (
+            <>
+              Send message
+              <FiArrowRight
+                aria-hidden
+                className="transition-transform duration-300 group-hover:translate-x-1"
+              />
+            </>
+          )}
+        </button>
+        <p role="status" aria-live="polite" className="text-sm">
+          {success ? (
+            <span className="text-muted">Thanks! I&apos;ll get back to you as soon as I can.</span>
+          ) : (
+            <span className="text-red-700 dark:text-red-400">{error}</span>
+          )}
+        </p>
+      </div>
+    </form>
   );
 }

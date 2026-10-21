@@ -9,7 +9,7 @@ export function LoginForm() {
   return (
     <form action={action} className="space-y-5">
       <label className="block space-y-2">
-        <span className="text-sm font-semibold">Admin password</span>
+        <span className="scheduler-label">Admin password</span>
         <input
           className="scheduler-input w-full"
           type="password"
@@ -20,7 +20,7 @@ export function LoginForm() {
           disabled={pending}
         />
       </label>
-      <button className="scheduler-button scheduler-primary" disabled={pending}>
+      <button className="scheduler-button scheduler-primary w-full" disabled={pending}>
         {pending ? 'Signing in…' : 'Sign in'}
       </button>
       {state.error && (
@@ -36,21 +36,28 @@ export function CreateRequestForm({ defaultTimezone }: { defaultTimezone: string
   const [timezone, setTimezone] = useState(defaultTimezone);
   const [state, action, pending] = useActionState(createAvailabilityRequest, {});
   return (
-    <form action={action} className="scheduler-card space-y-5">
-      <h2 className="text-2xl">New availability request</h2>
-      <label className="block space-y-2">
-        <span className="text-sm font-semibold">Meeting name</span>
-        <input
-          className="scheduler-input w-full"
-          name="title"
-          placeholder="Meeting Name"
-          maxLength={160}
-          required
-          disabled={pending}
-        />
-      </label>
-      <TimezoneSelect value={timezone} onChange={setTimezone} disabled={pending} />
-      <p className="text-sm scheduler-muted">
+    <form action={action} className="scheduler-card space-y-6">
+      <div>
+        <p className="scheduler-label">Create</p>
+        <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">
+          New availability request
+        </h2>
+      </div>
+      <div className="grid gap-5 md:grid-cols-2">
+        <label className="block min-w-0 space-y-2">
+          <span className="scheduler-label">Meeting name</span>
+          <input
+            className="scheduler-input w-full"
+            name="title"
+            placeholder="Meeting Name"
+            maxLength={160}
+            required
+            disabled={pending}
+          />
+        </label>
+        <TimezoneSelect value={timezone} onChange={setTimezone} disabled={pending} />
+      </div>
+      <p className="scheduler-muted max-w-3xl text-sm">
         Create a private link for one person to share their availability. This week and next week
         are fixed using this timezone when you create the request. Requests created Friday through
         Sunday start the coming Monday.
@@ -121,7 +128,10 @@ export function DeleteRequestButton({ id, title }: { id: string; title: string }
           Delete
         </button>
       ) : (
-        <form action={action} className="space-y-3 rounded-lg border border-red-700/40 p-4">
+        <form
+          action={action}
+          className="space-y-3 rounded-2xl border border-red-600/40 bg-red-500/5 p-4"
+        >
           <p className="text-sm">
             Permanently delete “{title}” and all its availability? The availability link will stop
             working.
