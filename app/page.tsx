@@ -105,7 +105,7 @@ export default function Home() {
               label="About"
               aside={
                 <>
-                  Hey! I&apos;m Gabe, a software engineer and full stack developer based in{' '}
+                  Hey! I&apos;m Gabe, a full stack software developer based in{' '}
                   <b className="text-ink">Ontario, Canada</b>.
                 </>
               }
@@ -376,7 +376,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-7xl flex-col gap-10 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="font-display text-lg font-semibold">Gabriel Santos</p>
-            <p className="text-sm text-muted">Software engineer · Ontario, Canada</p>
+            <p className="text-sm text-muted">Software developer · Ontario, Canada</p>
           </div>
           <nav aria-label="Footer" className="flex gap-12 text-sm">
             <ul className="space-y-2">

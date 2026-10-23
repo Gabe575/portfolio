@@ -4,6 +4,11 @@ import { createContext, useState, ReactNode, useContext, useEffect, useCallback 
 import Navbar from '@components/navbar';
 import CommandPalette from '@components/command-palette';
 import { ThemeProvider } from 'next-themes';
+import { LazyMotion } from 'framer-motion';
+import { hasHardwareGpu } from '@lib/gpu';
+
+// Animation features load in their own chunk after hydration; components use the slim `m`
+const loadMotionFeatures = () => import('@lib/motion-features').then((mod) => mod.default);
 
 interface UIContextType {
   projectOpen: boolean;
@@ -33,14 +38,23 @@ export default function UIProvider({
     setAnimationsEnabled(!animationsEnabled);
   }, [animationsEnabled]);
 
-  // Honour the OS reduced-motion setting until the visitor makes an explicit choice.
+  // Honour the OS reduced-motion setting, and default to no motion without a GPU, until the
+  // visitor makes an explicit choice.
   useEffect(() => {
     const hasChoice = document.cookie.split('; ').some((c) => c.startsWith('animation='));
-    if (!hasChoice && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (
+      !hasChoice &&
+      (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !hasHardwareGpu())
+    ) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setAnimationsEnabled(false);
     }
   }, []);
+
+  // globals.css makes anchor links smooth-scroll; plain links (footer, back to top) follow motion too
+  useEffect(() => {
+    document.documentElement.style.scrollBehavior = animationsEnabled ? '' : 'auto';
+  }, [animationsEnabled]);
 
   // One listener drives every [data-spotlight] highlight on the page.
   useEffect(() => {
@@ -70,9 +84,11 @@ export default function UIProvider({
           setPaletteOpen,
         }}
       >
-        <Navbar />
-        <CommandPalette />
-        {children}
+        <LazyMotion features={loadMotionFeatures} strict>
+          <Navbar />
+          <CommandPalette />
+          {children}
+        </LazyMotion>
       </UIContext.Provider>
     </ThemeProvider>
   );

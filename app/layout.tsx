@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://gabesantos.ca'),
   title: 'Gabriel Santos',
   description:
-    'Software engineer specialized in developing and maintaining full-stack web applications with modern technologies. Explore projects, skills, and solutions.',
+    'Software developer specialized in developing and maintaining full-stack web applications with modern technologies. Explore projects, skills, and solutions.',
   keywords: [
     'Gabriel Santos',
     'Software Engineer',
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     type: 'website',
     title: 'Gabriel Santos',
     description:
-      'Software engineer specialized in developing and maintaining full-stack web applications with modern technologies. Explore projects, skills, and solutions.',
+      'Software developer specialized in developing and maintaining full-stack web applications with modern technologies. Explore projects, skills, and solutions.',
     url: 'https://gabesantos.ca',
     siteName: 'Gabriel Santos Portfolio',
     images: [
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Gabriel Santos',
     description:
-      'Software engineer specialized in developing and maintaining full-stack web applications with modern technologies. Explore projects, skills, and solutions.',
+      'Software developer specialized in developing and maintaining full-stack web applications with modern technologies. Explore projects, skills, and solutions.',
     images: ['/og-image.png'],
   },
   robots: {

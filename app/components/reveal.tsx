@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { useUI } from '@components/ui-provider';
 
@@ -20,7 +20,7 @@ export default function Reveal({
   if (!animationsEnabled) return <div className={className}>{children}</div>;
 
   return (
-    <motion.div
+    <m.div
       className={className}
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -28,6 +28,6 @@ export default function Reveal({
       transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay }}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }

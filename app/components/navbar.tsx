@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import ModeToggle from '@components/mode-toggle';
 import { useUI } from '@components/ui-provider';
 import { FiX, FiMenu } from 'react-icons/fi';
-import { motion, useScroll, useSpring } from 'framer-motion';
+import { m, useScroll, useSpring } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 
 export const SECTIONS = [
@@ -162,7 +162,7 @@ export default function Navbar() {
           onPointerLeave: () => setIsHovered(false),
         })}
       />
-      <motion.nav
+      <m.nav
         aria-label="Primary"
         ref={menuRef}
         className={`fixed inset-x-3 top-3 z-30 overflow-hidden rounded-3xl border shadow-[0_10px_40px_-10px_rgb(0_0_0/0.35)] backdrop-blur-xl
@@ -199,7 +199,7 @@ export default function Navbar() {
               return (
                 <li key={id} className="relative">
                   {isActive && (
-                    <motion.span
+                    <m.span
                       layoutId="nav-active"
                       className={`absolute inset-0 rounded-full ${overHero ? 'bg-white/12' : 'bg-surface-2'}`}
                       transition={
@@ -262,13 +262,13 @@ export default function Navbar() {
         </div>
 
         {isHome && (
-          <motion.span
+          <m.span
             aria-hidden
             className="absolute inset-x-6 bottom-0 h-px origin-left"
             style={{ scaleX: progress, background: 'var(--spectrum)' }}
           />
         )}
-      </motion.nav>
+      </m.nav>
     </>
   );
 }

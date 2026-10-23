@@ -344,7 +344,7 @@ function Particles({ onReady }: { onReady?: () => void }) {
 
   useEffect(() => {
     const loader = new FontLoader();
-    loader.load('/fonts/jetbrains_mono_medium_regular.json', function (font) {
+    loader.load('/fonts/jetbrains_mono_hero.json', function (font) {
       const paletteBlue = [
         new THREE.Color(0x0011ff),
         new THREE.Color(0x0044ff),
@@ -531,8 +531,15 @@ export default function AnimatedHero({ onReady }: AnimatedHeroProps) {
       <Particles onReady={onReady} />
 
       {/* Additive points never read depth, so the composer doesn't need a depth buffer */}
-      <EffectComposer depthBuffer={false}>
-        <Bloom intensity={0.5} luminanceThreshold={0.5} luminanceSmoothing={0.9} radius={0.4} />
+
+      <EffectComposer depthBuffer={false} multisampling={2}>
+        <Bloom
+          intensity={0.3}
+          luminanceThreshold={0.55}
+          luminanceSmoothing={0.9}
+          radius={0.4}
+          levels={6}
+        />
       </EffectComposer>
     </Canvas>
   );

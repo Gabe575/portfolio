@@ -36,6 +36,11 @@ const RIM_WIDTH = `calc(${((Math.PI * 100) / RIM_SEGMENTS).toFixed(3)}% + 1px)`;
 const RIM_REEDING =
   'repeating-linear-gradient(90deg, rgb(255 255 255 / 0.14) 0 1px, transparent 1px 3px)';
 
+const FACE =
+  'animate-border absolute inset-0 overflow-hidden rounded-full border-4 border-white/20 bg-linear-to-br from-pink-400 via-indigo-400 to-emerald-400';
+const PHOTO_SIZES =
+  '(max-width: 640px) 176px, (max-width: 1024px) 224px, (max-width: 1280px) 320px, 384px';
+
 export default function InteractivePortrait() {
   const { animationsEnabled } = useUI();
 
@@ -53,6 +58,23 @@ export default function InteractivePortrait() {
 
   const lastX = useRef(0);
   const lastY = useRef(0);
+
+  // The border's glow and gradient loops repaint on the main thread every frame, so they only
+  // run while the portrait is on screen
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [onScreen, setOnScreen] = useState(false);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !('IntersectionObserver' in window)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setOnScreen(true);
+      return;
+    }
+    const observer = new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  const borderPlayState = onScreen ? 'running' : 'paused';
 
   const velocity = useRef(0);
   const animationFrame = useRef<number | null>(null);
@@ -291,12 +313,8 @@ export default function InteractivePortrait() {
     };
   }, []);
 
-  // Visually force the portrait to its static state when animations are disabled.
-  const displayedRotation = animationsEnabled ? rotation : 0;
-  const displayedTilt = animationsEnabled ? tilt : 0;
-
   return (
-    <div className="relative inline-flex flex-col items-center">
+    <div ref={containerRef} className="relative inline-flex flex-col items-center">
       {/* Spectrum halo */}
       <div
         aria-hidden
@@ -309,7 +327,7 @@ export default function InteractivePortrait() {
       <div
         className="relative inline-block h-44 w-44 sm:h-56 sm:w-56 lg:h-80 lg:w-80 xl:h-96 xl:w-96"
         style={{
-          perspective: '1000px',
+          perspective: animationsEnabled ? '1000px' : undefined,
           touchAction: animationsEnabled ? 'none' : 'auto',
           cursor: animationsEnabled ? (isDragging ? 'grabbing' : 'grab') : 'default',
         }}
@@ -327,78 +345,96 @@ export default function InteractivePortrait() {
             : 'Portrait of Gabriel Santos'
         }
       >
-        <div
-          ref={portraitRef}
-          className="relative h-full w-full"
-          style={{
-            transformStyle: 'preserve-3d',
-            transform: `rotateX(${displayedTilt}deg) rotateY(${displayedRotation}deg)`,
-            transition:
-              animationsEnabled && !isDragging && !isSpinning
-                ? 'transform 250ms cubic-bezier(0.22, 1, 0.36, 1)'
-                : 'none',
-          }}
-        >
-          {/* Rim */}
-          {RIM.map(({ angle, color }) => (
-            <div
-              key={angle}
-              className="absolute inset-0"
-              style={{ transform: `rotateZ(${angle}deg)`, transformStyle: 'preserve-3d' }}
-            >
-              <div
-                className="absolute top-0 left-1/2"
-                style={{
-                  width: RIM_WIDTH,
-                  height: THICKNESS,
-                  transform: 'translateX(-50%) rotateX(90deg)',
-                  transformOrigin: 'top center',
-                  background: `${RIM_REEDING}, ${color}`,
-                }}
-              />
-            </div>
-          ))}
-
-          {/* Front. The gradient and glow live on the faces themselves rather than on separate
-              layers inside the coin, which Safari would sometimes depth-sort in front of the photo */}
-          <div
-            className="animate-border absolute inset-0 overflow-hidden rounded-full border-4 border-white/20 bg-linear-to-br from-pink-400 via-indigo-400 to-emerald-400"
-            style={{
-              transform: `translateZ(${THICKNESS}px)`,
-              backfaceVisibility: 'hidden',
-              WebkitBackfaceVisibility: 'hidden',
-            }}
-          >
+        {!animationsEnabled ? (
+          // Flat stand-in. At rest the coin is seen face-on with its rim hidden, so this looks
+          // the same without the 3D layers, which software compositors render unreliably.
+          <div className={FACE} style={{ animationPlayState: 'paused' }}>
             <Image
               src="/headshot.jpg"
               alt="Gabriel Santos"
               fill
               draggable={false}
               priority
-              sizes="(max-width: 640px) 176px, (max-width: 1024px) 224px, (max-width: 1280px) 320px, 384px"
-              className="pointer-events-none select-none object-cover will-change-transform"
+              sizes={PHOTO_SIZES}
+              className="pointer-events-none select-none object-cover"
             />
           </div>
-
-          {/* Back */}
+        ) : (
           <div
-            className="animate-border absolute inset-0 overflow-hidden rounded-full border-4 border-white/20 bg-linear-to-br from-pink-400 via-indigo-400 to-emerald-400"
+            ref={portraitRef}
+            className="relative h-full w-full"
             style={{
-              transform: 'rotateY(180deg)',
-              backfaceVisibility: 'hidden',
-              WebkitBackfaceVisibility: 'hidden',
+              transformStyle: 'preserve-3d',
+              transform: `rotateX(${tilt}deg) rotateY(${rotation}deg)`,
+              transition:
+                !isDragging && !isSpinning
+                  ? 'transform 250ms cubic-bezier(0.22, 1, 0.36, 1)'
+                  : 'none',
             }}
           >
-            <Image
-              src="/headshot.jpg"
-              alt=""
-              fill
-              draggable={false}
-              sizes="(max-width: 640px) 176px, (max-width: 1024px) 224px, (max-width: 1280px) 320px, 384px"
-              className="pointer-events-none select-none object-cover will-change-transform"
-            />
+            {/* Rim */}
+            {RIM.map(({ angle, color }) => (
+              <div
+                key={angle}
+                className="absolute inset-0"
+                style={{ transform: `rotateZ(${angle}deg)`, transformStyle: 'preserve-3d' }}
+              >
+                <div
+                  className="absolute top-0 left-1/2"
+                  style={{
+                    width: RIM_WIDTH,
+                    height: THICKNESS,
+                    transform: 'translateX(-50%) rotateX(90deg)',
+                    transformOrigin: 'top center',
+                    background: `${RIM_REEDING}, ${color}`,
+                  }}
+                />
+              </div>
+            ))}
+
+            {/* Front. The gradient and glow live on the faces themselves rather than on separate
+              layers inside the coin, which Safari would sometimes depth-sort in front of the photo */}
+            <div
+              className={FACE}
+              style={{
+                transform: `translateZ(${THICKNESS}px)`,
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+                animationPlayState: borderPlayState,
+              }}
+            >
+              <Image
+                src="/headshot.jpg"
+                alt="Gabriel Santos"
+                fill
+                draggable={false}
+                priority
+                sizes={PHOTO_SIZES}
+                className="pointer-events-none select-none object-cover will-change-transform"
+              />
+            </div>
+
+            {/* Back */}
+            <div
+              className={FACE}
+              style={{
+                transform: 'rotateY(180deg)',
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+                animationPlayState: borderPlayState,
+              }}
+            >
+              <Image
+                src="/headshot.jpg"
+                alt=""
+                fill
+                draggable={false}
+                sizes={PHOTO_SIZES}
+                className="pointer-events-none select-none object-cover will-change-transform"
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

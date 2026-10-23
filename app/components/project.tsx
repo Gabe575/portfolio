@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { FiArrowUpRight, FiX } from 'react-icons/fi';
 import { useUI } from '@components/ui-provider';
 import type { ProjectData } from '@/data/projects';
@@ -95,6 +95,13 @@ export default function Project({
   const transition = animationsEnabled
     ? { type: 'tween' as const, duration: 0.6, ease: EASE }
     : { duration: 0 };
+  // Shared by the card and the modal's front face so both use the same, already-loaded file
+  const cardSizes = featured
+    ? '(max-width: 768px) 100vw, 1280px'
+    : '(max-width: 768px) 100vw, 640px';
+  const zoom = animationsEnabled
+    ? 'transition-transform duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105'
+    : '';
 
   // The overlay lives in a portal so transformed ancestors can't trap its position: fixed.
   const portal = (node: React.ReactNode) => isClient && createPortal(node, document.body);
@@ -104,7 +111,7 @@ export default function Project({
       {portal(
         <AnimatePresence>
           {open && (
-            <motion.div
+            <m.div
               className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
               initial={animationsEnabled ? { opacity: 0 } : false}
               animate={{ opacity: 1 }}
@@ -133,20 +140,28 @@ export default function Project({
             src={project.image}
             alt=""
             fill
-            sizes={
-              featured ? '(max-width: 768px) 100vw, 1280px' : '(max-width: 768px) 100vw, 640px'
-            }
-            className={`object-cover ${animationsEnabled ? 'transition-transform duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105' : ''}`}
+            sizes={cardSizes}
+            className={`object-cover ${zoom}`}
           />
-          {/* Blur and dim sit behind the text and ease off on hover so the image reads clearly */}
+          {/* Blur and dim sit behind the text and ease off on hover so the image reads clearly.
+              The blur is a pre-filtered copy of the same image rather than a backdrop-filter,
+              which would re-sample everything behind it on every scroll frame. */}
           <div
             aria-hidden
-            className={`absolute inset-0 backdrop-blur-[6px] ${animationsEnabled ? 'transition-opacity duration-500 group-hover:opacity-0' : ''}`}
+            className={`absolute inset-0 overflow-hidden ${animationsEnabled ? 'transition-opacity duration-500 group-hover:opacity-0' : ''}`}
             style={{
               maskImage: 'linear-gradient(to top, black 35%, transparent 80%)',
               WebkitMaskImage: 'linear-gradient(to top, black 35%, transparent 80%)',
             }}
-          />
+          >
+            <Image
+              src={project.image}
+              alt=""
+              fill
+              sizes={cardSizes}
+              className={`object-cover blur-[6px] ${zoom}`}
+            />
+          </div>
           <div
             className={`absolute inset-0 bg-linear-to-t from-black/95 via-black/65 via-45% to-black/0 ${animationsEnabled ? 'transition-opacity duration-500 group-hover:opacity-80' : ''}`}
           />
@@ -195,7 +210,7 @@ export default function Project({
           }}
         >
           {open && (
-            <motion.div
+            <m.div
               className="fixed z-50"
               style={{ perspective: 1800 }}
               initial={animationsEnabled ? cardRect : false}
@@ -203,7 +218,7 @@ export default function Project({
               exit={animationsEnabled ? cardRect : undefined}
               transition={transition}
             >
-              <motion.div
+              <m.div
                 className="relative h-full w-full"
                 initial={animationsEnabled ? { rotateY: 0 } : false}
                 animate={{ rotateY: 180 }}
@@ -213,13 +228,19 @@ export default function Project({
               >
                 {/* Front: the card image, so the flight reads as the same object */}
                 <div
-                  className="absolute inset-0 overflow-hidden rounded-3xl border border-line bg-cover bg-center"
+                  className="absolute inset-0 overflow-hidden rounded-3xl border border-line"
                   style={{
-                    backgroundImage: `url(${project.image})`,
                     backfaceVisibility: 'hidden',
                     WebkitBackfaceVisibility: 'hidden',
                   }}
                 >
+                  <Image
+                    src={project.image}
+                    alt=""
+                    fill
+                    sizes={cardSizes}
+                    className="object-cover"
+                  />
                   <div className="absolute inset-0 bg-linear-to-t from-black/80 to-black/0" />
                 </div>
 
@@ -335,8 +356,8 @@ export default function Project({
                     </div>
                   </div>
                 </div>
-              </motion.div>
-            </motion.div>
+              </m.div>
+            </m.div>
           )}
         </AnimatePresence>,
       )}

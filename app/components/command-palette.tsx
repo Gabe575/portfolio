@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import {
@@ -178,7 +178,7 @@ export default function CommandPalette() {
   return (
     <AnimatePresence>
       {paletteOpen && (
-        <motion.div
+        <m.div
           className="fixed inset-0 z-60 flex items-start justify-center bg-black/50 px-3 pt-[12vh] backdrop-blur-sm"
           initial={animationsEnabled ? { opacity: 0 } : false}
           animate={{ opacity: 1 }}
@@ -186,7 +186,7 @@ export default function CommandPalette() {
           transition={{ duration: animationsEnabled ? 0.2 : 0 }}
           onMouseDown={(e) => e.target === e.currentTarget && close()}
         >
-          <motion.div
+          <m.div
             role="dialog"
             aria-modal="true"
             aria-label="Command menu"
@@ -283,8 +283,8 @@ export default function CommandPalette() {
               </span>
               <span className="ml-auto font-mono">gabesantos.ca</span>
             </div>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

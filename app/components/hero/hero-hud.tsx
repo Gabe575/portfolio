@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { m, useScroll, useTransform } from 'framer-motion';
 import { useUI } from '@components/ui-provider';
 
 export default function HeroHud() {
@@ -9,7 +9,7 @@ export default function HeroHud() {
   const opacity = useTransform(scrollY, [0, 320], [1, 0]);
 
   return (
-    <motion.div
+    <m.div
       aria-hidden
       style={{ opacity }}
       className="pointer-events-none absolute inset-x-0 top-0 z-20 h-svh"
@@ -21,6 +21,6 @@ export default function HeroHud() {
           />
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

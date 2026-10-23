@@ -51,7 +51,7 @@ function StaticHero({ children, still }: { children?: React.ReactNode; still?: b
       {/* Ambient center glow */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[55vw] w-[55vw] max-h-200 max-w-200 -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
+        className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[55vw] w-[55vw] max-h-200 max-w-200 -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{
           background:
             'radial-gradient(circle, rgba(0, 100, 255, 0.09) 0%, rgba(20, 40, 180, 0.055) 35%, rgba(80, 0, 180, 0.025) 55%, transparent 72%)',
@@ -147,7 +147,7 @@ function HeroText({ exiting = false }: { exiting?: boolean }) {
             software
           </span>{' '}
           <span className={`hero-word hero-word-right ${exiting ? 'hero-word-exit-right' : ''}`}>
-            engineer
+            developer
           </span>
         </p>
 
