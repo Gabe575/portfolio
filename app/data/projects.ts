@@ -26,7 +26,10 @@ export const projects: ProjectData[] = [
     highlight: { value: '2,000+', label: 'visitors in a single day' },
     tags: ['Astro', 'Stripe', 'Cloudflare'],
     stack: ['Astro (TypeScript)', 'Stripe', 'Resend (contact form)', 'Cloudflare D1 + Workers'],
-    link: { href: 'https://zebuunformayor.ca', label: 'zebuunformayor.ca' },
+    link: {
+      href: 'https://web.archive.org/web/20261024205643/https://zebuunformayor.ca',
+      label: 'zebuunformayor.ca (archived)',
+    },
   },
   {
     slug: 'traffic-counter',
